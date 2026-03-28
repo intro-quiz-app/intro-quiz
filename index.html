@@ -443,6 +443,12 @@ function goTitle(){
   stopAudio();
   answered = true; paused = false;
   hideViz();
+  // アーティスト選択状態をリセット
+  selectedArtists = [];
+  isRandom = false;
+  document.querySelectorAll('.abtn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('btn-random').classList.remove('on');
+  updateStartBtn();
   updateExcludeBanner();
   showPage('title');
   window.scrollTo(0,0);
@@ -530,9 +536,21 @@ let score=0, miss=0, combo=0, round=0;
 async function nextRound(){
   stopAudio(); answered=false; paused=false;
   updatePauseBtn(); hideViz();
-  document.getElementById('ans-reveal').style.display='none';
-  document.getElementById('time-num').style.display='block';
-  document.getElementById('btn-pause').style.display='';
+
+  // ── DOM完全リセット ──
+  const ansEl = document.getElementById('ans-reveal');
+  ansEl.style.display = 'none';
+  ansEl.style.animation = 'none'; // アニメーション残留を防ぐ
+  void ansEl.offsetWidth;         // リフロー
+  ansEl.style.animation = '';
+
+  const timeEl = document.getElementById('time-num');
+  timeEl.style.display = 'block';
+  timeEl.style.color = 'var(--red)';
+  timeEl.textContent = PLAY_SEC;
+
+  document.getElementById('btn-pause').style.display = '';
+  document.getElementById('choices').innerHTML = ''; // 選択肢も先にクリア
 
   const avail = pool.filter((_,i)=>!usedIdx.includes(i));
   if(!avail.length || round>=TOTAL_Q){ showResult(); return; }
@@ -630,10 +648,11 @@ function buildChoices(){
 }
 function handleAnswer(song,btn){
   if(answered||paused)return;
+  // ── iOSの連続タップ防止：即座に全ボタン無効化 ──
+  document.querySelectorAll('.cbtn').forEach(b=>b.disabled=true);
   answered=true; stopAudio(); hideViz();
   const ok=song===cur.song;
   document.querySelectorAll('.cbtn').forEach((b,i)=>{
-    b.disabled=true;
     if(choices[i]===cur.song) b.classList.add('correct');
     else if(b===btn) b.classList.add('wrong');
     else b.classList.add('dim');
@@ -642,13 +661,19 @@ function handleAnswer(song,btn){
   updateScoreUI(); revealAnswer(ok); scheduleNext();
 }
 function revealAnswer(ok){
-  document.getElementById('ans-emoji').textContent=ok?'🎉':'😭';
-  document.getElementById('ans-name').textContent=cur.song;
-  document.getElementById('ans-name').style.color=ok?'var(--green)':'#ff6666';
-  document.getElementById('ans-artist').textContent=cur.artistName;
-  document.getElementById('ans-reveal').style.display='block';
-  document.getElementById('time-num').style.display='none';
-  document.getElementById('btn-pause').style.display='none';
+  document.getElementById('ans-emoji').textContent = ok ? '🎉' : '😭';
+  document.getElementById('ans-name').textContent  = cur.song;
+  document.getElementById('ans-name').style.color  = ok ? 'var(--green)' : '#ff6666';
+  document.getElementById('ans-artist').textContent = cur.artistName;
+
+  const el = document.getElementById('ans-reveal');
+  el.style.animation = 'none';
+  void el.offsetWidth;
+  el.style.animation = '';
+  el.style.display = 'block';
+
+  document.getElementById('time-num').style.display  = 'none';
+  document.getElementById('btn-pause').style.display = 'none';
 }
 function scheduleNext(){ round++; setTimeout(nextRound,2200); }
 function updateScoreUI(){ document.getElementById('g-ok').textContent=score; document.getElementById('g-ng').textContent=miss; }
@@ -694,6 +719,11 @@ function showResult(){
 //  初期化
 // ════════════════════════════════════
 function shuffle(a){ return [...a].sort(()=>Math.random()-0.5); }
+// 起動時：選択状態クリア・スタート無効
+selectedArtists = [];
+isRandom = false;
+document.getElementById('btn-start').disabled = true;
+document.getElementById('btn-random').classList.remove('on');
 showPage('title');
 updateExcludeBanner();
 </script>
