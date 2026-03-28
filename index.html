@@ -18,130 +18,135 @@
     background:var(--bg); min-height:100vh; min-height:-webkit-fill-available;
     font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
     color:#fff; display:flex; flex-direction:column;
-    align-items:center; justify-content:center; padding:20px;
+    align-items:center; justify-content:center; padding:16px;
     overflow:hidden; position:relative;
   }
   .bg-glow { position:fixed; inset:0; pointer-events:none; z-index:0;
     background: radial-gradient(ellipse at 15% 50%,rgba(255,50,50,0.08) 0%,transparent 55%),
                 radial-gradient(ellipse at 85% 20%,rgba(80,80,255,0.07) 0%,transparent 55%); }
-
-.screen { position:relative; z-index:1; width:100%; max-width:420px; display:none; animation:fadeUp 0.35s ease; }
-.screen.active { display:block; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
-
-.card { background:var(–card); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-border:1px solid var(–border); border-radius:24px; padding:28px 22px;
-box-shadow:0 0 60px rgba(255,50,50,0.08),0 24px 60px rgba(0,0,0,0.6); }
+  .screen { position:relative; z-index:1; width:100%; max-width:430px; display:none; animation:fadeUp 0.3s ease; }
+  .screen.active { display:block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+  .card { background:var(--card); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+    border:1px solid var(--border); border-radius:22px; padding:22px 18px;
+    box-shadow:0 0 60px rgba(255,50,50,0.08),0 20px 50px rgba(0,0,0,0.6); }
 
 /* TITLE */
-.title-label { font-size:10px; letter-spacing:5px; color:var(–red); text-transform:uppercase; text-align:center; margin-bottom:14px; }
-.title-main { font-size:34px; font-weight:900; text-align:center; letter-spacing:-1px; line-height:1.1; margin-bottom:4px; }
-.title-sub { font-size:11px; color:rgba(255,255,255,0.3); text-align:center; letter-spacing:3px; margin-bottom:24px; }
+.title-label { font-size:10px; letter-spacing:5px; color:var(–red); text-transform:uppercase; text-align:center; margin-bottom:12px; }
+.title-main { font-size:32px; font-weight:900; text-align:center; letter-spacing:-1px; line-height:1.1; margin-bottom:3px; }
+.title-sub { font-size:11px; color:rgba(255,255,255,0.3); text-align:center; letter-spacing:2px; margin-bottom:20px; }
 
 /* ARTIST SELECT */
-.section-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:12px; text-transform:uppercase; }
-.artist-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.section-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; }
+.artist-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
 .artist-btn {
-padding:16px 10px; font-size:13px; font-weight:700;
+padding:12px 8px; font-size:12px; font-weight:700;
 background:rgba(255,255,255,0.06); color:#fff;
-border:1px solid rgba(255,255,255,0.12); border-radius:14px;
+border:1px solid rgba(255,255,255,0.12); border-radius:12px;
 cursor:pointer; font-family:inherit; text-align:center; line-height:1.4;
-transition:all 0.2s;
+transition:all 0.18s;
 }
+.artist-btn .a-icon { font-size:18px; display:block; margin-bottom:4px; }
+.artist-btn .a-sub { font-size:10px; color:rgba(255,255,255,0.4); display:block; }
+.artist-btn.selected { background:rgba(255,58,58,0.18); border-color:rgba(255,58,58,0.6); box-shadow:0 0 14px rgba(255,58,58,0.2); }
 .artist-btn:active { transform:scale(0.95); }
-.artist-btn .a-icon { font-size:22px; display:block; margin-bottom:6px; }
-.artist-btn .a-name { font-size:11px; display:block; }
-.artist-btn.selected {
-background:rgba(255,58,58,0.18);
-border-color:rgba(255,58,58,0.6);
-box-shadow:0 0 16px rgba(255,58,58,0.25);
-}
 
-.random-btn {
-width:100%; padding:14px; font-size:14px; font-weight:700;
-background:rgba(255,200,0,0.1); color:#ffd700;
-border:1px solid rgba(255,200,0,0.3); border-radius:14px;
-cursor:pointer; font-family:inherit; margin-bottom:20px;
-transition:all 0.2s;
-}
+.random-btn { width:100%; padding:12px; font-size:13px; font-weight:700;
+background:rgba(255,200,0,0.08); color:#ffd700;
+border:1px solid rgba(255,200,0,0.25); border-radius:12px;
+cursor:pointer; font-family:inherit; margin-bottom:16px; transition:all 0.18s; }
+.random-btn.selected { background:rgba(255,200,0,0.18); border-color:#ffd700; }
 .random-btn:active { transform:scale(0.97); }
-.random-btn.selected { background:rgba(255,200,0,0.2); border-color:#ffd700; box-shadow:0 0 16px rgba(255,200,0,0.3); }
 
-.btn-main { width:100%; padding:16px; font-size:16px; font-weight:800;
+.btn-main { width:100%; padding:15px; font-size:15px; font-weight:800;
 background:linear-gradient(135deg,#ff4040,#e02020); color:#fff; border:none;
-border-radius:14px; cursor:pointer; letter-spacing:2px;
-box-shadow:0 0 28px var(–red-g); font-family:inherit; transition:transform 0.1s; }
+border-radius:13px; cursor:pointer; letter-spacing:2px;
+box-shadow:0 0 24px var(–red-g); font-family:inherit; transition:transform 0.1s; }
 .btn-main:active { transform:scale(0.96); }
 .btn-main:disabled { opacity:0.4; cursor:default; box-shadow:none; }
-.btn-sub { flex:1; padding:14px; font-size:14px; font-weight:600;
+.btn-sub { flex:1; padding:13px; font-size:13px; font-weight:600;
 background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.65);
 border:1px solid rgba(255,255,255,0.15); border-radius:12px;
 cursor:pointer; font-family:inherit; transition:transform 0.1s; }
 .btn-sub:active { transform:scale(0.96); }
 
 /* LOADING */
-.loading-icon { font-size:36px; text-align:center; margin-bottom:14px; animation:spin 1s linear infinite; }
+.loading-icon { font-size:32px; text-align:center; margin-bottom:12px; animation:spin 1s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
-.loading-text { font-size:15px; color:rgba(255,255,255,0.55); text-align:center; }
-.loading-artist { font-size:12px; color:rgba(255,255,255,0.3); text-align:center; margin-top:8px; }
+.loading-text { font-size:14px; color:rgba(255,255,255,0.5); text-align:center; }
+.loading-sub { font-size:11px; color:rgba(255,255,255,0.28); text-align:center; margin-top:6px; }
 
 /* GAME */
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
-.round-label { font-size:12px; color:rgba(255,255,255,0.38); letter-spacing:1px; }
-.score-box { display:flex; gap:14px; font-size:13px; }
+.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.round-label { font-size:11px; color:rgba(255,255,255,0.38); letter-spacing:1px; }
+.score-box { display:flex; gap:12px; font-size:12px; }
 .score-correct { color:var(–green); }
 .score-miss { color:#ff6666; }
 
-.now-artist { font-size:10px; color:rgba(255,255,255,0.3); text-align:center; margin-bottom:10px; letter-spacing:1px; }
+.timer-track { background:rgba(255,255,255,0.07); border-radius:5px; height:5px; margin-bottom:16px; overflow:hidden; }
+#timer-bar { height:100%; width:100%; border-radius:5px; background:var(–red); transition:width 0.15s linear,background 0.5s; }
 
-.timer-track { background:rgba(255,255,255,0.07); border-radius:6px; height:5px; margin-bottom:18px; overflow:hidden; }
-#timer-bar { height:100%; width:100%; border-radius:6px; background:var(–red); transition:width 0.15s linear,background 0.5s; }
+.visualizer { display:flex; justify-content:center; align-items:flex-end; gap:4px; height:44px; margin-bottom:4px; }
+.bar { width:5px; border-radius:3px; background:linear-gradient(to top,var(–red),#ff8080); animation:wave 0s ease-in-out infinite alternate; }
+@keyframes wave { from{transform:scaleY(0.25)} to{transform:scaleY(1)} }
 
-.visualizer { display:flex; justify-content:center; align-items:flex-end; gap:5px; height:48px; margin-bottom:4px; }
-.bar { width:5px; border-radius:4px; background:linear-gradient(to top,var(–red),#ff8080); animation:wave 0s ease-in-out infinite alternate; }
-@keyframes wave { from{transform:scaleY(0.3)} to{transform:scaleY(1)} }
+.time-display { font-size:26px; font-weight:900; text-align:center; margin-bottom:14px;
+font-variant-numeric:tabular-nums; transition:color 0.4s; text-shadow:0 0 18px currentColor; }
 
-.time-display { font-size:28px; font-weight:900; text-align:center; margin-bottom:16px;
-font-variant-numeric:tabular-nums; transition:color 0.4s; text-shadow:0 0 20px currentColor; }
+/* ポーズボタン */
+.pause-row { display:flex; justify-content:center; margin-bottom:10px; }
+#pause-btn {
+padding:7px 22px; font-size:12px; font-weight:700;
+background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);
+border:1px solid rgba(255,255,255,0.18); border-radius:20px;
+cursor:pointer; font-family:inherit; transition:all 0.15s; letter-spacing:1px;
+}
+#pause-btn.paused { background:rgba(255,200,0,0.15); border-color:rgba(255,200,0,0.5); color:#ffd700; }
+#pause-btn:active { transform:scale(0.95); }
 
-.answer-reveal { text-align:center; margin-bottom:14px; animation:fadeUp 0.3s ease; }
-.answer-emoji { font-size:36px; margin-bottom:6px; }
-.answer-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:4px; }
-.answer-name { font-size:17px; font-weight:700; }
-.answer-artist { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
+.answer-reveal { text-align:center; margin-bottom:12px; animation:fadeUp 0.3s ease; }
+.answer-emoji { font-size:34px; margin-bottom:6px; }
+.answer-label { font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:3px; }
+.answer-name { font-size:16px; font-weight:700; }
+.answer-artist { font-size:10px; color:rgba(255,255,255,0.35); margin-top:2px; }
 
-.choices { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
-.choice-btn { padding:12px 8px; font-size:12px; font-weight:600;
+.choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.choice-btn { padding:11px 7px; font-size:12px; font-weight:600;
 background:rgba(255,255,255,0.07); color:#fff;
-border:1px solid rgba(255,255,255,0.13); border-radius:13px; cursor:pointer;
-font-family:inherit; line-height:1.4; min-height:56px;
+border:1px solid rgba(255,255,255,0.13); border-radius:12px; cursor:pointer;
+font-family:inherit; line-height:1.4; min-height:54px;
 display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
 transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:center; }
-.choice-btn .opt-label { font-size:10px; color:rgba(255,255,255,0.35); font-weight:500; }
+.choice-btn .opt-label { font-size:9px; color:rgba(255,255,255,0.32); font-weight:500; }
 .choice-btn:active:not(:disabled) { transform:scale(0.95); }
 .choice-btn:disabled { cursor:default; }
-.choice-btn.correct { background:rgba(57,255,138,0.15); border-color:rgba(57,255,138,0.5); color:var(–green); box-shadow:0 0 18px rgba(57,255,138,0.2); animation:popIn 0.35s ease; }
-.choice-btn.wrong-pick { background:rgba(255,60,60,0.15); border-color:rgba(255,60,60,0.5); color:#ff6666; animation:shake 0.35s ease; }
-.choice-btn.dim { opacity:0.3; }
-@keyframes popIn { 0%{transform:scale(1)} 40%{transform:scale(1.05)} 100%{transform:scale(1)} }
+.choice-btn.correct { background:rgba(57,255,138,0.15); border-color:rgba(57,255,138,0.5); color:var(–green); box-shadow:0 0 16px rgba(57,255,138,0.2); animation:popIn 0.3s ease; }
+.choice-btn.wrong-pick { background:rgba(255,60,60,0.15); border-color:rgba(255,60,60,0.5); color:#ff6666; animation:shake 0.3s ease; }
+.choice-btn.dim { opacity:0.28; }
+@keyframes popIn { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 100%{transform:scale(1)} }
 @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(3px)} }
+
+/* スキップ通知 */
+#skip-notice { display:none; text-align:center; font-size:11px; color:#ffd700;
+padding:8px; margin-bottom:8px; background:rgba(255,200,0,0.08);
+border-radius:8px; border:1px solid rgba(255,200,0,0.2); }
 
 #combo-overlay { display:none; position:fixed; inset:0; z-index:50; pointer-events:none; align-items:center; justify-content:center; }
 #combo-overlay.show { display:flex; }
-.combo-badge { background:rgba(0,0,0,0.88); border:2px solid var(–red); border-radius:18px; padding:16px 28px; text-align:center; box-shadow:0 0 40px var(–red-g); animation:comboPop 1.6s ease forwards; }
-.combo-title { font-size:11px; letter-spacing:4px; color:var(–red); margin-bottom:4px; }
-.combo-num { font-size:48px; font-weight:900; color:var(–red); line-height:1; }
-@keyframes comboPop { 0%{opacity:0;transform:scale(0.4)} 25%{opacity:1;transform:scale(1.12)} 50%{transform:scale(1)} 75%{opacity:1} 100%{opacity:0;transform:scale(0.9)} }
+.combo-badge { background:rgba(0,0,0,0.88); border:2px solid var(–red); border-radius:16px; padding:14px 26px; text-align:center; box-shadow:0 0 36px var(–red-g); animation:comboPop 1.6s ease forwards; }
+.combo-title { font-size:10px; letter-spacing:4px; color:var(–red); margin-bottom:3px; }
+.combo-num { font-size:44px; font-weight:900; color:var(–red); line-height:1; }
+@keyframes comboPop { 0%{opacity:0;transform:scale(0.4)} 25%{opacity:1;transform:scale(1.1)} 50%{transform:scale(1)} 75%{opacity:1} 100%{opacity:0;transform:scale(0.9)} }
 
 /* RESULT */
-.result-label { font-size:10px; letter-spacing:5px; color:var(–red); text-align:center; margin-bottom:16px; }
-.result-score { font-size:68px; font-weight:900; text-align:center; line-height:1; margin-bottom:4px; }
-.result-score span { font-size:20px; color:rgba(255,255,255,0.4); }
-.result-rank { font-size:19px; text-align:center; margin-bottom:8px; }
-.result-detail { font-size:12px; color:rgba(255,255,255,0.38); text-align:center; margin-bottom:24px; }
+.result-label { font-size:10px; letter-spacing:5px; color:var(–red); text-align:center; margin-bottom:14px; }
+.result-score { font-size:64px; font-weight:900; text-align:center; line-height:1; margin-bottom:4px; }
+.result-score span { font-size:18px; color:rgba(255,255,255,0.4); }
+.result-rank { font-size:18px; text-align:center; margin-bottom:6px; }
+.result-detail { font-size:11px; color:rgba(255,255,255,0.35); text-align:center; margin-bottom:22px; }
 .result-btns { display:flex; gap:10px; }
 
-.footer { position:relative; z-index:1; margin-top:14px; font-size:10px; color:rgba(255,255,255,0.18); text-align:center; line-height:1.7; }
+.footer { position:relative; z-index:1; margin-top:12px; font-size:9px; color:rgba(255,255,255,0.15); text-align:center; line-height:1.7; }
 </style>
 
 </head>
@@ -149,51 +154,57 @@ transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:cent
 <div class="bg-glow"></div>
 <audio id="audio" playsinline webkit-playsinline preload="none"></audio>
 
-<!-- TITLE / ARTIST SELECT -->
+<!-- TITLE -->
 
 <div id="screen-title" class="screen active">
   <div class="card">
     <div class="title-label">INTRO QUIZ</div>
     <div class="title-main">イントロクイズ</div>
     <div class="title-sub">J-POP 早押し 4択</div>
-
-```
-<div class="section-label">アーティストを選ぶ</div>
-<div class="artist-grid">
-  <button class="artist-btn" data-artist="mrchildren" onclick="toggleArtist(this)">
-    <span class="a-icon">🎸</span>
-    <span>Mr.Children</span>
-    <span class="a-name">ミスチル</span>
-  </button>
-  <button class="artist-btn" data-artist="southern" onclick="toggleArtist(this)">
-    <span class="a-icon">🌊</span>
-    <span>サザン</span>
-    <span class="a-name">オールスターズ</span>
-  </button>
-  <button class="artist-btn" data-artist="kuwata" onclick="toggleArtist(this)">
-    <span class="a-icon">🎤</span>
-    <span>桑田佳祐</span>
-    <span class="a-name">ソロ</span>
-  </button>
-</div>
-
-<button class="random-btn" id="random-btn" onclick="toggleRandom()">
-  🎲 ランダム（全アーティスト混合）
-</button>
-
-<button class="btn-main" id="btn-start" onclick="onStart()" disabled>▶ スタート</button>
-```
-
+    <div class="section-label">アーティストを選ぶ（複数OK）</div>
+    <div class="artist-grid">
+      <button class="artist-btn" data-artist="mrchildren" onclick="toggleArtist(this)">
+        <span class="a-icon">🎸</span>Mr.Children<span class="a-sub">TOP30</span>
+      </button>
+      <button class="artist-btn" data-artist="southern" onclick="toggleArtist(this)">
+        <span class="a-icon">🌊</span>サザン<span class="a-sub">TOP30</span>
+      </button>
+      <button class="artist-btn" data-artist="kuwata" onclick="toggleArtist(this)">
+        <span class="a-icon">🎤</span>桑田佳祐<span class="a-sub">ソロ TOP15</span>
+      </button>
+      <button class="artist-btn" data-artist="yuzu" onclick="toggleArtist(this)">
+        <span class="a-icon">🍋</span>ゆず<span class="a-sub">TOP20</span>
+      </button>
+      <button class="artist-btn" data-artist="yuming" onclick="toggleArtist(this)">
+        <span class="a-icon">✈️</span>ユーミン<span class="a-sub">TOP20</span>
+      </button>
+      <button class="artist-btn" data-artist="backnumber" onclick="toggleArtist(this)">
+        <span class="a-icon">💌</span>back number<span class="a-sub">TOP10</span>
+      </button>
+      <button class="artist-btn" data-artist="mrs" onclick="toggleArtist(this)">
+        <span class="a-icon">🍎</span>ミセス<span class="a-sub">TOP10</span>
+      </button>
+      <button class="artist-btn" data-artist="higedan" onclick="toggleArtist(this)">
+        <span class="a-icon">👔</span>髭男dism<span class="a-sub">TOP10</span>
+      </button>
+      <button class="artist-btn" data-artist="aimyon" onclick="toggleArtist(this)">
+        <span class="a-icon">🌼</span>あいみょん<span class="a-sub">TOP10</span>
+      </button>
+    </div>
+    <button class="random-btn" id="random-btn" onclick="toggleRandom()">
+      🎲 ランダム（全アーティスト混合）
+    </button>
+    <button class="btn-main" id="btn-start" onclick="onStart()" disabled>▶ スタート</button>
   </div>
 </div>
 
 <!-- LOADING -->
 
 <div id="screen-loading" class="screen">
-  <div class="card" style="text-align:center;padding:48px 24px;">
+  <div class="card" style="text-align:center;padding:44px 20px;">
     <div class="loading-icon">🎵</div>
     <div class="loading-text">楽曲を読み込み中...</div>
-    <div class="loading-artist" id="loading-info"></div>
+    <div class="loading-sub" id="loading-info"></div>
   </div>
 </div>
 
@@ -209,9 +220,12 @@ transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:cent
       </div>
     </div>
     <div class="timer-track"><div id="timer-bar"></div></div>
-    <div id="error-msg" style="display:none;text-align:center;font-size:11px;color:rgba(255,255,255,0.35);padding:8px 0 2px;">⚠ 音源なし — 曲名から推測して！</div>
+    <div id="skip-notice">⚠ 音源なし — 次の問題にスキップします</div>
     <div class="visualizer" id="visualizer"></div>
     <div class="time-display" id="time-display">15</div>
+    <div class="pause-row">
+      <button id="pause-btn" onclick="togglePause()">⏸ ポーズ</button>
+    </div>
     <div class="answer-reveal" id="answer-reveal" style="display:none;">
       <div class="answer-emoji" id="answer-emoji"></div>
       <div class="answer-label">正解</div>
@@ -243,7 +257,6 @@ transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:cent
     <div class="combo-num" id="combo-num">2x</div>
   </div>
 </div>
-
 <div class="footer">♪ iTunes Preview 使用 ／ 著作権は各アーティストに帰属します</div>
 
 <script>
@@ -252,68 +265,66 @@ transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:cent
 // ══════════════════════════════════════════
 const LIBRARY = {
   mrchildren: {
-    name: "Mr.Children",
-    search: "Mr.Children",
-    songs: [
-      "365日","GIFT","終わりなき旅","HANABI","名もなき詩",
-      "しるし","抱きしめたい","Tomorrow never knows","Over","Sign",
-      "君がいた夏","花の匂い","旅立ちの唄","ひまわり","innocent world",
-      "彩り","口笛","くるみ","Your Song","Birthday",
-      "足音 〜Be Strong","HERO","シーソーゲーム 〜勇敢な恋の歌〜",
-      "youthful days","ALIVE","CROSS ROAD","エソラ","NOT FOUND",
-      "fanfare","光の射す方へ"
-    ]
+    name:"Mr.Children", search:"Mr.Children",
+    songs:["365日","GIFT","終わりなき旅","HANABI","名もなき詩","しるし","抱きしめたい","Tomorrow never knows","Over","Sign","君がいた夏","花の匂い","旅立ちの唄","ひまわり","innocent world","彩り","口笛","くるみ","Your Song","Birthday","足音 〜Be Strong","HERO","シーソーゲーム 〜勇敢な恋の歌〜","youthful days","ALIVE","CROSS ROAD","エソラ","NOT FOUND","fanfare","光の射す方へ"]
   },
   southern: {
-    name: "サザンオールスターズ",
-    search: "サザンオールスターズ",
-    songs: [
-      "TSUNAMI","勝手にシンドバッド","いとしのエリー",
-      "LOVE AFFAIR〜秘密のデート","真夏の果実","C調言葉に御用心",
-      "エロティカ・セブン","HOTEL PACIFIC","希望の轍",
-      "ミス・ブランニュー・デイ","涙のキッス","夏をあきらめて",
-      "シュラバ★ラ★バンバ","Bye Bye My Love","心を開いて",
-      "女神達への情歌","みんなのうた","愛の言霊〜Spiritual Message",
-      "蛍","ピースとハイライト","栄光の男","東京VICTORY",
-      "匂艶 THE NIGHT CLUB","太陽は罪な奴","君こそスターだ",
-      "恋人も濡れる街角","神の島遥か国","マンピーのG★SPOT",
-      "素敵な夢を叶えましょう","ラチェット"
-    ]
+    name:"サザンオールスターズ", search:"サザンオールスターズ",
+    songs:["TSUNAMI","勝手にシンドバッド","いとしのエリー","LOVE AFFAIR〜秘密のデート","真夏の果実","C調言葉に御用心","エロティカ・セブン","HOTEL PACIFIC","希望の轍","ミス・ブランニュー・デイ","涙のキッス","夏をあきらめて","シュラバ★ラ★バンバ","Bye Bye My Love","心を開いて","女神達への情歌","みんなのうた","愛の言霊〜Spiritual Message","蛍","ピースとハイライト","栄光の男","東京VICTORY","匂艶 THE NIGHT CLUB","太陽は罪な奴","君こそスターだ","恋人も濡れる街角","神の島遥か国","マンピーのG★SPOT","素敵な夢を叶えましょう","YOU"]
   },
   kuwata: {
-    name: "桑田佳祐",
-    search: "桑田佳祐",
-    songs: [
-      "悲しい気持ち (JUST A MAN IN LOVE)","白い恋人達","波乗りジョニー",
-      "明日晴れるかな","いつか何処かで","月","真夜中のダンディー",
-      "祭りのあと","若い広場","Yin Yang〜陰陽〜",
-      "銀河の星屑","ダーリン","風の詩を聴かせて","君への手紙","ヨシ子さん"
-    ]
+    name:"桑田佳祐", search:"桑田佳祐",
+    songs:["悲しい気持ち (JUST A MAN IN LOVE)","白い恋人達","波乗りジョニー","明日晴れるかな","いつか何処かで","月","真夜中のダンディー","祭りのあと","若い広場","Yin Yang〜陰陽〜","銀河の星屑","ダーリン","風の詩を聴かせて","君への手紙","ヨシ子さん"]
+  },
+  yuzu: {
+    name:"ゆず", search:"ゆず",
+    songs:["夏色","栄光の架橋","サヨナラバス","いつか","雨のち晴レルヤ","飛べない鳥","友〜旅立ちの時〜","嗚呼、青春の日々","春風","虹","またあした","歩いていこう","桜木町","Hey和","里帰り","からっぽ","逢いたい","言葉にならない、笑顔を見せてくれよ","幸せ","季節が巡ること"]
+  },
+  yuming: {
+    name:"松任谷由実", search:"松任谷由実",
+    songs:["春よ、来い","Hello, my friend","真夏の夜の夢","ルージュの伝言","やさしさに包まれたなら","あの日にかえりたい","恋人がサンタクロース","守ってあげたい","中央フリーウェイ","翳りゆく部屋","ひこうき雲","埠頭を渡る風","卒業写真","天国のドア","リフレインが叫んでる","ダンスのように抱き寄せたい","瞳を閉じて","雨の街を","ノーサイド","DESTINY"]
+  },
+  backnumber: {
+    name:"back number", search:"back number",
+    songs:["クリスマスソング","水平線","ヒロイン","ハッピーエンド","花束","高嶺の花子さん","オールドファッション","HAPPY BIRTHDAY","アンコール","瞬き"]
+  },
+  mrs: {
+    name:"Mrs. GREEN APPLE", search:"Mrs GREEN APPLE",
+    songs:["ライラック","ダンスホール","ケセラセラ","青と夏","WanteD! WanteD!","僕のこと","Soranji","インフェルノ","Love me, Love you","点描の唄"]
+  },
+  higedan: {
+    name:"Official髭男dism", search:"Official髭男dism",
+    songs:["Pretender","イエスタデイ","Subtitle","Universe","I LOVE...","Cry Baby","Traveler","115万キロのフィルム","CITRUS","ミックスナッツ"]
+  },
+  aimyon: {
+    name:"あいみょん", search:"あいみょん",
+    songs:["マリーゴールド","君はロックを聴かない","今夜このまま","ハルノヒ","裸の心","桜が降る夜は","愛を伝えたいだとか","生きていたんだよな","空の青さを知る人よ","あいみょん"]
   }
 };
 
 const PLAY_SEC=15, TOTAL_Q=10, OPTS=["A","B","C","D"];
 const SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
 
-// ══════════════════════════════════════════
-//  状態
-// ══════════════════════════════════════════
 let selectedArtists=[], isRandom=false;
-let score=0,miss=0,combo=0,round=0;
+let score=0, miss=0, combo=0, round=0;
 let pool=[], usedIndexes=[], currentItem=null, choices=[];
 let timerInterval=null, elapsed=0, answered=false, audioUnlocked=false;
+let isPaused=false;
 
 const audioEl=document.getElementById('audio');
 
-// ══════════════════════════════════════════
-//  アーティスト選択UI
-// ══════════════════════════════════════════
-function toggleArtist(btn) {
+// ══ iOS Audio解放 ══
+function unlockAudio(){
+  if(audioUnlocked) return;
+  audioEl.src=SILENT;
+  audioEl.play().then(()=>{ audioEl.pause(); audioEl.src=""; audioUnlocked=true; }).catch(()=>{});
+}
+
+// ══ アーティスト選択 ══
+function toggleArtist(btn){
   const key=btn.dataset.artist;
-  // ランダム解除
   isRandom=false;
   document.getElementById('random-btn').classList.remove('selected');
-
   if(selectedArtists.includes(key)){
     selectedArtists=selectedArtists.filter(k=>k!==key);
     btn.classList.remove('selected');
@@ -323,96 +334,61 @@ function toggleArtist(btn) {
   }
   updateStartBtn();
 }
-
-function toggleRandom() {
+function toggleRandom(){
   isRandom=!isRandom;
-  document.getElementById('random-btn').classList.toggle('selected', isRandom);
-  if(isRandom){
-    // アーティスト個別選択を解除
-    selectedArtists=[];
-    document.querySelectorAll('.artist-btn').forEach(b=>b.classList.remove('selected'));
-  }
+  document.getElementById('random-btn').classList.toggle('selected',isRandom);
+  if(isRandom){ selectedArtists=[]; document.querySelectorAll('.artist-btn').forEach(b=>b.classList.remove('selected')); }
   updateStartBtn();
 }
+function updateStartBtn(){ document.getElementById('btn-start').disabled=!(isRandom||selectedArtists.length>0); }
 
-function updateStartBtn(){
-  const ok = isRandom || selectedArtists.length>0;
-  document.getElementById('btn-start').disabled=!ok;
-}
-
-// ══════════════════════════════════════════
-//  iOS Audio解放
-// ══════════════════════════════════════════
-function unlockAudio(){
-  if(audioUnlocked) return;
-  audioEl.src=SILENT;
-  audioEl.play().then(()=>{ audioEl.pause(); audioEl.src=""; audioUnlocked=true; }).catch(()=>{});
-}
-
-// ══════════════════════════════════════════
-//  ゲーム開始
-// ══════════════════════════════════════════
+// ══ ゲーム開始 ══
 function onStart(){
   unlockAudio();
   score=0; miss=0; combo=0; round=0; usedIndexes=[];
-
-  // プールを作る
-  if(isRandom){
-    pool=[];
-    Object.keys(LIBRARY).forEach(key=>{
-      LIBRARY[key].songs.forEach(song=>{
-        pool.push({ song, artistKey:key, artistName:LIBRARY[key].name, search:LIBRARY[key].search });
-      });
+  pool=[];
+  const keys = isRandom ? Object.keys(LIBRARY) : selectedArtists;
+  keys.forEach(key=>{
+    LIBRARY[key].songs.forEach(song=>{
+      pool.push({ song, artistKey:key, artistName:LIBRARY[key].name, search:LIBRARY[key].search });
     });
-  } else {
-    pool=[];
-    selectedArtists.forEach(key=>{
-      LIBRARY[key].songs.forEach(song=>{
-        pool.push({ song, artistKey:key, artistName:LIBRARY[key].name, search:LIBRARY[key].search });
-      });
-    });
-  }
+  });
   pool=shuffle(pool);
-
   updateScoreUI();
   nextRound();
 }
-
 document.getElementById('btn-start').addEventListener('click', onStart);
 document.getElementById('btn-retry').addEventListener('click', onStart);
 
-// ══════════════════════════════════════════
-//  ラウンド
-// ══════════════════════════════════════════
+// ══ ラウンド ══
 async function nextRound(){
-  stopAudio(); answered=false;
+  stopAudio(); answered=false; isPaused=false;
+  updatePauseBtn();
   hideViz();
   document.getElementById('answer-reveal').style.display='none';
-  document.getElementById('error-msg').style.display='none';
+  document.getElementById('skip-notice').style.display='none';
   document.getElementById('time-display').style.display='block';
+  document.getElementById('pause-btn').style.display='';
 
   const available=pool.filter((_,i)=>!usedIndexes.includes(i));
-  if(!available.length || round>=TOTAL_Q){ showResult(); return; }
+  if(!available.length||round>=TOTAL_Q){ showResult(); return; }
 
-  const idx=pool.indexOf(shuffle(available)[0]);
+  const item=shuffle(available)[0];
+  const idx=pool.indexOf(item);
   usedIndexes.push(idx);
-  currentItem=pool[idx];
+  currentItem=item;
 
-  // 4択: 同じアーティストの曲から選ぶ（ランダム時は全曲から）
-  let allSongs;
-  if(isRandom){
-    allSongs=pool.map(p=>p.song);
-  } else {
-    allSongs=pool.map(p=>p.song);
-  }
-  const others=shuffle(allSongs.filter(s=>s!==currentItem.song)).slice(0,3);
-  choices=shuffle([currentItem.song,...others]);
+  const otherSongs=shuffle(pool.filter(p=>p.song!==item.song).map(p=>p.song));
+  const others=[...new Set(otherSongs)].slice(0,3);
+  choices=shuffle([item.song,...others]);
 
   document.getElementById('round-label').textContent=`${round+1} / ${TOTAL_Q}問`;
-  document.getElementById('loading-info').textContent=currentItem.artistName;
+  document.getElementById('loading-info').textContent=item.artistName+' — '+item.song.substring(0,8)+'...';
   showScreen('loading');
 
-  const url=await fetchPreview(currentItem.search, currentItem.song);
+  // iTunesで音源検索（2回まで試行）
+  let url = await fetchPreview(item.search, item.song);
+  if(!url) url = await fetchPreview(item.artistName, item.song);
 
   buildChoices();
   resetBar();
@@ -421,14 +397,18 @@ async function nextRound(){
   showScreen('game');
 
   if(!url){
-    document.getElementById('error-msg').style.display='block';
-    startTimer(); return;
+    // 音源なし → 3秒後に自動スキップ（ノーカウント）
+    document.getElementById('skip-notice').style.display='block';
+    document.getElementById('pause-btn').style.display='none';
+    document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
+    setTimeout(()=>{ round++; nextRound(); }, 3000);
+    return;
   }
 
   audioEl.src=url;
   audioEl.currentTime=0;
   audioEl.play().then(()=>{ buildViz(); startTimer(); })
-    .catch(()=>{ document.getElementById('error-msg').style.display='block'; startTimer(); });
+    .catch(()=>{ startTimer(); });
 }
 
 function stopAudio(){
@@ -436,31 +416,28 @@ function stopAudio(){
   clearInterval(timerInterval); timerInterval=null;
 }
 
-// ══════════════════════════════════════════
-//  iTunes API
-// ══════════════════════════════════════════
+// ══ iTunes API ══
 async function fetchPreview(artistSearch, song){
   try{
     const q=encodeURIComponent(artistSearch+' '+song);
-    const r=await fetch(`https://itunes.apple.com/search?term=${q}&entity=song&country=jp&limit=8`);
+    const r=await fetch(`https://itunes.apple.com/search?term=${q}&entity=song&country=jp&limit=5`);
     const d=await r.json();
     const h=(d.results||[]).find(x=>x.previewUrl);
     return h?h.previewUrl:null;
   }catch{ return null; }
 }
 
-// ══════════════════════════════════════════
-//  タイマー
-// ══════════════════════════════════════════
+// ══ タイマー ══
 function startTimer(){
   elapsed=0;
   timerInterval=setInterval(()=>{
+    if(isPaused) return;
     elapsed+=0.1;
     const left=Math.max(0,PLAY_SEC-elapsed);
     const pct=left/PLAY_SEC;
     const c=pct>0.5?'var(--red)':pct>0.25?'#ff8800':'#ffcc00';
     const td=document.getElementById('time-display');
-    td.textContent=Math.ceil(left); td.style.color=c; td.style.textShadow=`0 0 20px ${c}`;
+    td.textContent=Math.ceil(left); td.style.color=c; td.style.textShadow=`0 0 18px ${c}`;
     updateBar(pct);
     if(left<=0){ clearInterval(timerInterval); audioEl.pause(); timeUp(); }
   },100);
@@ -477,9 +454,21 @@ function timeUp(){
   answered=true; miss++; combo=0; stopAudio(); hideViz(); updateScoreUI(); revealAnswer(false); scheduleNext();
 }
 
-// ══════════════════════════════════════════
-//  選択肢
-// ══════════════════════════════════════════
+// ══ ポーズ ══
+function togglePause(){
+  if(answered)return;
+  isPaused=!isPaused;
+  if(isPaused){ audioEl.pause(); }
+  else { audioEl.play().catch(()=>{}); }
+  updatePauseBtn();
+}
+function updatePauseBtn(){
+  const btn=document.getElementById('pause-btn');
+  btn.textContent=isPaused?'▶ 再開':'⏸ ポーズ';
+  btn.classList.toggle('paused',isPaused);
+}
+
+// ══ 選択肢 ══
 function buildChoices(){
   const c=document.getElementById('choices'); c.innerHTML='';
   choices.forEach((song,i)=>{
@@ -490,22 +479,20 @@ function buildChoices(){
     c.appendChild(btn);
   });
 }
-
 function handleAnswer(song,btn){
-  if(answered)return;
+  if(answered||isPaused)return;
   answered=true; stopAudio(); hideViz();
   const ok=song===currentItem.song;
   document.querySelectorAll('.choice-btn').forEach((b,i)=>{
     b.disabled=true;
-    if(choices[i]===currentItem.song) b.classList.add('correct');
-    else if(b===btn) b.classList.add('wrong-pick');
+    if(choices[i]===currentItem.song)b.classList.add('correct');
+    else if(b===btn)b.classList.add('wrong-pick');
     else b.classList.add('dim');
   });
-  if(ok){ score++; combo++; if(combo>=2) showCombo(combo); }
-  else{ miss++; combo=0; }
+  if(ok){score++;combo++;if(combo>=2)showCombo(combo);}
+  else{miss++;combo=0;}
   updateScoreUI(); revealAnswer(ok); scheduleNext();
 }
-
 function revealAnswer(ok){
   document.getElementById('answer-emoji').textContent=ok?'🎉':'😭';
   document.getElementById('answer-name').textContent=currentItem.song;
@@ -513,8 +500,8 @@ function revealAnswer(ok){
   document.getElementById('answer-artist-label').textContent=currentItem.artistName;
   document.getElementById('answer-reveal').style.display='block';
   document.getElementById('time-display').style.display='none';
+  document.getElementById('pause-btn').style.display='none';
 }
-
 function scheduleNext(){ round++; setTimeout(nextRound,2200); }
 function updateScoreUI(){ document.getElementById('score-ok').textContent=score; document.getElementById('score-ng').textContent=miss; }
 function showCombo(n){
@@ -523,12 +510,10 @@ function showCombo(n){
   el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1700);
 }
 
-// ══════════════════════════════════════════
-//  ビジュアライザー
-// ══════════════════════════════════════════
+// ══ ビジュアライザー ══
 function buildViz(){
   const v=document.getElementById('visualizer'); v.innerHTML='';
-  [18,30,44,36,52,40,26,48,34,22].forEach((h,i)=>{
+  [16,28,42,34,50,38,24,46,32,20].forEach((h,i)=>{
     const b=document.createElement('div'); b.className='bar';
     b.style.cssText=`height:${h}px;animation-duration:${0.4+i*0.07}s;animation-delay:${i*0.05}s;`;
     v.appendChild(b);
@@ -536,9 +521,7 @@ function buildViz(){
 }
 function hideViz(){ document.getElementById('visualizer').innerHTML=''; }
 
-// ══════════════════════════════════════════
-//  結果
-// ══════════════════════════════════════════
+// ══ 結果 ══
 function showResult(){
   const pct=(score/TOTAL_Q)*100;
   const rank=pct>=90?'🏆 完璧！':pct>=70?'🎸 すごい！':pct>=50?'🎵 なかなか！':pct>=30?'😅 もう少し！':'🔰 要特訓！';
@@ -548,9 +531,7 @@ function showResult(){
   showScreen('result');
 }
 
-// ══════════════════════════════════════════
-//  共通
-// ══════════════════════════════════════════
+// ══ 共通 ══
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById('screen-'+id); el.classList.add('active'); void el.offsetWidth;
@@ -560,3 +541,4 @@ function shuffle(a){ return [...a].sort(()=>Math.random()-0.5); }
 
 </body>
 </html>
+
