@@ -171,10 +171,16 @@ border-radius:8px; border:1px solid rgba(255,200,0,0.2); }
 <!-- LOADING -->
 
 <div id="screen-loading" class="screen">
-  <div class="card" style="text-align:center;padding:44px 20px;">
+  <div class="card" style="text-align:center;padding:36px 20px;">
     <div class="loading-icon">🎵</div>
-    <div class="loading-text">楽曲を読み込み中...</div>
+    <div class="loading-text" id="loading-text">音源を確認中...</div>
     <div class="loading-sub" id="loading-info"></div>
+    <div style="margin-top:16px;">
+      <div style="background:rgba(255,255,255,0.07);border-radius:6px;height:5px;overflow:hidden;">
+        <div id="preload-bar" style="height:100%;width:0%;background:var(--red);border-radius:6px;transition:width 0.3s;"></div>
+      </div>
+      <div id="preload-count" style="font-size:11px;color:rgba(255,255,255,0.35);margin-top:8px;"></div>
+    </div>
   </div>
 </div>
 
@@ -214,6 +220,11 @@ border-radius:8px; border:1px solid rgba(255,200,0,0.2); }
     <div class="result-score" id="result-score">0<span>/10</span></div>
     <div class="result-rank" id="result-rank"></div>
     <div class="result-detail" id="result-detail"></div>
+    <!-- 音源なしリスト -->
+    <div id="no-audio-box" style="display:none;margin-bottom:16px;background:rgba(255,200,0,0.07);border:1px solid rgba(255,200,0,0.25);border-radius:12px;padding:12px 14px;">
+      <div style="font-size:10px;color:#ffd700;letter-spacing:2px;margin-bottom:8px;">⚠ 音源が見つからなかった曲</div>
+      <div id="no-audio-list" style="font-size:11px;color:rgba(255,255,255,0.55);line-height:2;"></div>
+    </div>
     <div class="result-btns">
       <button class="btn-main" style="flex:1" id="btn-retry">もう一度</button>
       <button class="btn-sub" onclick="showScreen('title')">選択に戻る</button>
@@ -315,17 +326,65 @@ function toggleRandom(){
 }
 function updateStartBtn(){ document.getElementById('btn-start').disabled=!(isRandom||selectedArtists.length>0); }
 
+let noAudioSongs = []; // 音源なし曲リスト（セッション累積）
+
 function onStart(){
   unlockAudio();
   score=0; miss=0; combo=0; round=0; usedIndexes=[];
+  noAudioSongs=[];
   pool=[];
   const keys=isRandom?Object.keys(LIBRARY):selectedArtists;
-  keys.forEach(key=>{ LIBRARY[key].songs.forEach(song=>{ pool.push({song,artistName:LIBRARY[key].name,search:LIBRARY[key].search}); }); });
+  keys.forEach(key=>{ LIBRARY[key].songs.forEach(song=>{ pool.push({song,artistName:LIBRARY[key].name,search:LIBRARY[key].search,url:null,checked:false}); }); });
   pool=shuffle(pool);
-  updateScoreUI(); nextRound();
+  updateScoreUI();
+  // ゲーム開始前にプリロード
+  preloadAndStart();
 }
 document.getElementById('btn-start').addEventListener('click',onStart);
 document.getElementById('btn-retry').addEventListener('click',onStart);
+
+async function preloadAndStart(){
+  // 先に10問分だけ先読み（速度優先）
+  const candidates = pool.slice(0, Math.min(30, pool.length));
+  let checked = 0;
+  document.getElementById('loading-text').textContent = '音源を確認中...';
+  document.getElementById('preload-bar').style.width = '0%';
+  document.getElementById('preload-count').textContent = '';
+  showScreen('loading');
+
+  // 並列でfetch（最大5並列）
+  const BATCH = 5;
+  for(let i=0; i<candidates.length; i+=BATCH){
+    if(answered && pool.length===0) return; // タイトルに戻った場合
+    const batch = candidates.slice(i, i+BATCH);
+    await Promise.all(batch.map(async item=>{
+      let url = await fetchPreview(item.search, item.song);
+      if(!url) url = await fetchPreview(item.artistName, item.song);
+      item.url = url;
+      item.checked = true;
+      if(!url) noAudioSongs.push(`${item.artistName} — ${item.song}`);
+      checked++;
+      const pct = Math.round((checked/candidates.length)*100);
+      document.getElementById('preload-bar').style.width = pct+'%';
+      document.getElementById('preload-count').textContent = `${checked} / ${candidates.length} 曲確認済み`;
+    }));
+    // 十分な曲が揃ったら先行スタート可能
+    const validCount = pool.filter(p=>p.checked && p.url).length;
+    if(validCount >= TOTAL_Q) break;
+  }
+
+  // 有効な曲だけに絞る
+  pool = pool.filter(p=>p.checked && p.url);
+
+  if(pool.length < 3){
+    document.getElementById('loading-text').textContent = '音源が見つかりませんでした';
+    document.getElementById('preload-count').textContent = '別のアーティストを選んでお試しください';
+    setTimeout(()=>showScreen('title'), 3000);
+    return;
+  }
+
+  nextRound();
+}
 
 async function nextRound(){
   stopAudio(); answered=false; isPaused=false; updatePauseBtn();
@@ -346,25 +405,13 @@ async function nextRound(){
   choices=shuffle([item.song,...others]);
 
   document.getElementById('round-label').textContent=`${round+1} / ${TOTAL_Q}問`;
-  document.getElementById('loading-info').textContent=item.artistName;
-  showScreen('loading');
-
-  let url=await fetchPreview(item.search,item.song);
-  if(!url) url=await fetchPreview(item.artistName,item.song);
-
+  // 音源は既に確認済みなのでそのまま再生
   buildChoices(); resetBar();
   document.getElementById('time-display').textContent=PLAY_SEC;
   document.getElementById('time-display').style.color='var(--red)';
   showScreen('game');
 
-  if(!url){
-    document.getElementById('skip-notice').style.display='block';
-    document.getElementById('pause-btn').style.display='none';
-    document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
-    setTimeout(()=>{ round++; nextRound(); },3000); return;
-  }
-
-  audioEl.src=url; audioEl.currentTime=0;
+  audioEl.src=item.url; audioEl.currentTime=0;
   audioEl.play().then(()=>{ buildViz(); startTimer(); }).catch(()=>{ startTimer(); });
 }
 
@@ -471,6 +518,15 @@ function showResult(){
   document.getElementById('result-score').innerHTML=`${score}<span>/${TOTAL_Q}</span>`;
   document.getElementById('result-rank').textContent=rank;
   document.getElementById('result-detail').textContent=`正解 ${score}問 ／ ミス ${miss}問`;
+  // 音源なしリスト表示
+  const box=document.getElementById('no-audio-box');
+  const list=document.getElementById('no-audio-list');
+  if(noAudioSongs.length>0){
+    list.innerHTML=noAudioSongs.map(s=>`• ${s}`).join('<br>');
+    box.style.display='block';
+  } else {
+    box.style.display='none';
+  }
   showScreen('result');
 }
 function showScreen(id){
