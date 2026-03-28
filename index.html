@@ -26,10 +26,9 @@
                 radial-gradient(ellipse at 85% 20%,rgba(80,80,255,0.07) 0%,transparent 55%); }
   .screen { position:relative; z-index:1; width:100%; max-width:430px; display:none; animation:fadeUp 0.3s ease; }
   .screen.active { display:block; }
-  /* タイトル以外は画面中央に */
   #screen-loading, #screen-game, #screen-result {
     position:fixed; top:50%; left:50%; transform:translate(-50%,-50%);
-    padding:16px;
+    padding:16px; width:calc(100% - 32px); max-width:430px;
   }
   #screen-loading.active, #screen-game.active, #screen-result.active { display:block; }
   @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
@@ -38,22 +37,22 @@
     box-shadow:0 0 60px rgba(255,50,50,0.08),0 20px 50px rgba(0,0,0,0.6); }
 
 /* TITLE */
+#screen-title { padding-top:20px; padding-bottom:30px; }
 .title-label { font-size:10px; letter-spacing:5px; color:var(–red); text-transform:uppercase; text-align:center; margin-bottom:12px; }
 .title-main { font-size:32px; font-weight:900; text-align:center; letter-spacing:-1px; line-height:1.1; margin-bottom:3px; }
 .title-sub { font-size:11px; color:rgba(255,255,255,0.3); text-align:center; letter-spacing:2px; margin-bottom:20px; }
 
-/* ARTIST SELECT */
 .section-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:10px; text-transform:uppercase; }
 .artist-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:8px; }
 .artist-btn {
-padding:12px 8px; font-size:12px; font-weight:700;
+padding:10px 7px; font-size:12px; font-weight:700;
 background:rgba(255,255,255,0.06); color:#fff;
 border:1px solid rgba(255,255,255,0.12); border-radius:12px;
 cursor:pointer; font-family:inherit; text-align:center; line-height:1.4;
 transition:all 0.18s;
 }
-.artist-btn .a-icon { font-size:18px; display:block; margin-bottom:4px; }
-.artist-btn .a-sub { font-size:10px; color:rgba(255,255,255,0.4); display:block; }
+.artist-btn .a-icon { font-size:16px; display:block; margin-bottom:3px; }
+.artist-btn .a-sub { font-size:9px; color:rgba(255,255,255,0.4); display:block; }
 .artist-btn.selected { background:rgba(255,58,58,0.18); border-color:rgba(255,58,58,0.6); box-shadow:0 0 14px rgba(255,58,58,0.2); }
 .artist-btn:active { transform:scale(0.95); }
 
@@ -76,13 +75,11 @@ border:1px solid rgba(255,255,255,0.15); border-radius:12px;
 cursor:pointer; font-family:inherit; transition:transform 0.1s; }
 .btn-sub:active { transform:scale(0.96); }
 
-/* LOADING */
 .loading-icon { font-size:32px; text-align:center; margin-bottom:12px; animation:spin 1s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
 .loading-text { font-size:14px; color:rgba(255,255,255,0.5); text-align:center; }
 .loading-sub { font-size:11px; color:rgba(255,255,255,0.28); text-align:center; margin-top:6px; }
 
-/* GAME */
 .game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
 .round-label { font-size:11px; color:rgba(255,255,255,0.38); letter-spacing:1px; }
 .score-box { display:flex; gap:12px; font-size:12px; }
@@ -96,17 +93,14 @@ cursor:pointer; font-family:inherit; transition:transform 0.1s; }
 .bar { width:5px; border-radius:3px; background:linear-gradient(to top,var(–red),#ff8080); animation:wave 0s ease-in-out infinite alternate; }
 @keyframes wave { from{transform:scaleY(0.25)} to{transform:scaleY(1)} }
 
-.time-display { font-size:26px; font-weight:900; text-align:center; margin-bottom:14px;
+.time-display { font-size:26px; font-weight:900; text-align:center; margin-bottom:10px;
 font-variant-numeric:tabular-nums; transition:color 0.4s; text-shadow:0 0 18px currentColor; }
 
-/* ポーズボタン */
-.pause-row { display:flex; justify-content:center; margin-bottom:10px; }
-#pause-btn {
-padding:7px 22px; font-size:12px; font-weight:700;
+.pause-row { display:flex; justify-content:center; margin-bottom:12px; }
+#pause-btn { padding:7px 22px; font-size:12px; font-weight:700;
 background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);
 border:1px solid rgba(255,255,255,0.18); border-radius:20px;
-cursor:pointer; font-family:inherit; transition:all 0.15s; letter-spacing:1px;
-}
+cursor:pointer; font-family:inherit; transition:all 0.15s; letter-spacing:1px; }
 #pause-btn.paused { background:rgba(255,200,0,0.15); border-color:rgba(255,200,0,0.5); color:#ffd700; }
 #pause-btn:active { transform:scale(0.95); }
 
@@ -132,7 +126,6 @@ transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:cent
 @keyframes popIn { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 100%{transform:scale(1)} }
 @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(3px)} }
 
-/* スキップ通知 */
 #skip-notice { display:none; text-align:center; font-size:11px; color:#ffd700;
 padding:8px; margin-bottom:8px; background:rgba(255,200,0,0.08);
 border-radius:8px; border:1px solid rgba(255,200,0,0.2); }
@@ -144,7 +137,6 @@ border-radius:8px; border:1px solid rgba(255,200,0,0.2); }
 .combo-num { font-size:44px; font-weight:900; color:var(–red); line-height:1; }
 @keyframes comboPop { 0%{opacity:0;transform:scale(0.4)} 25%{opacity:1;transform:scale(1.1)} 50%{transform:scale(1)} 75%{opacity:1} 100%{opacity:0;transform:scale(0.9)} }
 
-/* RESULT */
 .result-label { font-size:10px; letter-spacing:5px; color:var(–red); text-align:center; margin-bottom:14px; }
 .result-score { font-size:64px; font-weight:900; text-align:center; line-height:1; margin-bottom:4px; }
 .result-score span { font-size:18px; color:rgba(255,255,255,0.4); }
@@ -168,35 +160,7 @@ border-radius:8px; border:1px solid rgba(255,200,0,0.2); }
     <div class="title-main">イントロクイズ</div>
     <div class="title-sub">J-POP 早押し 4択</div>
     <div class="section-label">アーティストを選ぶ（複数OK）</div>
-    <div class="artist-grid">
-      <button class="artist-btn" data-artist="mrchildren" onclick="toggleArtist(this)">
-        <span class="a-icon">🎸</span>Mr.Children<span class="a-sub">TOP30</span>
-      </button>
-      <button class="artist-btn" data-artist="southern" onclick="toggleArtist(this)">
-        <span class="a-icon">🌊</span>サザン<span class="a-sub">TOP30</span>
-      </button>
-      <button class="artist-btn" data-artist="kuwata" onclick="toggleArtist(this)">
-        <span class="a-icon">🎤</span>桑田佳祐<span class="a-sub">ソロ TOP15</span>
-      </button>
-      <button class="artist-btn" data-artist="yuzu" onclick="toggleArtist(this)">
-        <span class="a-icon">🍋</span>ゆず<span class="a-sub">TOP20</span>
-      </button>
-      <button class="artist-btn" data-artist="yuming" onclick="toggleArtist(this)">
-        <span class="a-icon">✈️</span>ユーミン<span class="a-sub">TOP20</span>
-      </button>
-      <button class="artist-btn" data-artist="backnumber" onclick="toggleArtist(this)">
-        <span class="a-icon">💌</span>back number<span class="a-sub">TOP10</span>
-      </button>
-      <button class="artist-btn" data-artist="mrs" onclick="toggleArtist(this)">
-        <span class="a-icon">🍎</span>ミセス<span class="a-sub">TOP10</span>
-      </button>
-      <button class="artist-btn" data-artist="higedan" onclick="toggleArtist(this)">
-        <span class="a-icon">👔</span>髭男dism<span class="a-sub">TOP10</span>
-      </button>
-      <button class="artist-btn" data-artist="aimyon" onclick="toggleArtist(this)">
-        <span class="a-icon">🌼</span>あいみょん<span class="a-sub">TOP10</span>
-      </button>
-    </div>
+    <div class="artist-grid" id="artist-grid"></div>
     <button class="random-btn" id="random-btn" onclick="toggleRandom()">
       🎲 ランダム（全アーティスト混合）
     </button>
@@ -266,46 +230,45 @@ border-radius:8px; border:1px solid rgba(255,200,0,0.2); }
 <div class="footer">♪ iTunes Preview 使用 ／ 著作権は各アーティストに帰属します</div>
 
 <script>
-// ══════════════════════════════════════════
-//  楽曲データ
-// ══════════════════════════════════════════
 const LIBRARY = {
-  mrchildren: {
-    name:"Mr.Children", search:"Mr.Children",
-    songs:["365日","GIFT","終わりなき旅","HANABI","名もなき詩","しるし","抱きしめたい","Tomorrow never knows","Over","Sign","君がいた夏","花の匂い","旅立ちの唄","ひまわり","innocent world","彩り","口笛","くるみ","Your Song","Birthday","足音 〜Be Strong","HERO","シーソーゲーム 〜勇敢な恋の歌〜","youthful days","ALIVE","CROSS ROAD","エソラ","NOT FOUND","fanfare","光の射す方へ"]
-  },
-  southern: {
-    name:"サザンオールスターズ", search:"サザンオールスターズ",
-    songs:["TSUNAMI","勝手にシンドバッド","いとしのエリー","LOVE AFFAIR〜秘密のデート","真夏の果実","C調言葉に御用心","エロティカ・セブン","HOTEL PACIFIC","希望の轍","ミス・ブランニュー・デイ","涙のキッス","夏をあきらめて","シュラバ★ラ★バンバ","Bye Bye My Love","心を開いて","女神達への情歌","みんなのうた","愛の言霊〜Spiritual Message","蛍","ピースとハイライト","栄光の男","東京VICTORY","匂艶 THE NIGHT CLUB","太陽は罪な奴","君こそスターだ","恋人も濡れる街角","神の島遥か国","マンピーのG★SPOT","素敵な夢を叶えましょう","YOU"]
-  },
-  kuwata: {
-    name:"桑田佳祐", search:"桑田佳祐",
-    songs:["悲しい気持ち (JUST A MAN IN LOVE)","白い恋人達","波乗りジョニー","明日晴れるかな","いつか何処かで","月","真夜中のダンディー","祭りのあと","若い広場","Yin Yang〜陰陽〜","銀河の星屑","ダーリン","風の詩を聴かせて","君への手紙","ヨシ子さん"]
-  },
-  yuzu: {
-    name:"ゆず", search:"ゆず",
-    songs:["夏色","栄光の架橋","サヨナラバス","いつか","雨のち晴レルヤ","飛べない鳥","友〜旅立ちの時〜","嗚呼、青春の日々","春風","虹","またあした","歩いていこう","桜木町","Hey和","里帰り","からっぽ","逢いたい","言葉にならない、笑顔を見せてくれよ","幸せ","季節が巡ること"]
-  },
-  yuming: {
-    name:"松任谷由実", search:"松任谷由実",
-    songs:["春よ、来い","Hello, my friend","真夏の夜の夢","ルージュの伝言","やさしさに包まれたなら","あの日にかえりたい","恋人がサンタクロース","守ってあげたい","中央フリーウェイ","翳りゆく部屋","ひこうき雲","埠頭を渡る風","卒業写真","天国のドア","リフレインが叫んでる","ダンスのように抱き寄せたい","瞳を閉じて","雨の街を","ノーサイド","DESTINY"]
-  },
-  backnumber: {
-    name:"back number", search:"back number",
-    songs:["クリスマスソング","水平線","ヒロイン","ハッピーエンド","花束","高嶺の花子さん","オールドファッション","HAPPY BIRTHDAY","アンコール","瞬き"]
-  },
-  mrs: {
-    name:"Mrs. GREEN APPLE", search:"Mrs GREEN APPLE",
-    songs:["ライラック","ダンスホール","ケセラセラ","青と夏","WanteD! WanteD!","僕のこと","Soranji","インフェルノ","Love me, Love you","点描の唄"]
-  },
-  higedan: {
-    name:"Official髭男dism", search:"Official髭男dism",
-    songs:["Pretender","イエスタデイ","Subtitle","Universe","I LOVE...","Cry Baby","Traveler","115万キロのフィルム","CITRUS","ミックスナッツ"]
-  },
-  aimyon: {
-    name:"あいみょん", search:"あいみょん",
-    songs:["マリーゴールド","君はロックを聴かない","今夜このまま","ハルノヒ","裸の心","桜が降る夜は","愛を伝えたいだとか","生きていたんだよな","空の青さを知る人よ","あいみょん"]
-  }
+  mrchildren:  { name:"Mr.Children",        icon:"🎸", sub:"TOP30", search:"Mr.Children",
+    songs:["365日","GIFT","終わりなき旅","HANABI","名もなき詩","しるし","抱きしめたい","Tomorrow never knows","Over","Sign","君がいた夏","花の匂い","旅立ちの唄","ひまわり","innocent world","彩り","口笛","くるみ","Your Song","Birthday","足音 〜Be Strong","HERO","シーソーゲーム 〜勇敢な恋の歌〜","youthful days","ALIVE","CROSS ROAD","エソラ","NOT FOUND","fanfare","光の射す方へ"] },
+  southern:    { name:"サザンオールスターズ", icon:"🌊", sub:"TOP30", search:"サザンオールスターズ",
+    songs:["TSUNAMI","勝手にシンドバッド","いとしのエリー","LOVE AFFAIR〜秘密のデート","真夏の果実","C調言葉に御用心","エロティカ・セブン","HOTEL PACIFIC","希望の轍","ミス・ブランニュー・デイ","涙のキッス","夏をあきらめて","シュラバ★ラ★バンバ","Bye Bye My Love","心を開いて","女神達への情歌","みんなのうた","愛の言霊〜Spiritual Message","蛍","ピースとハイライト","栄光の男","東京VICTORY","匂艶 THE NIGHT CLUB","太陽は罪な奴","君こそスターだ","恋人も濡れる街角","神の島遥か国","マンピーのG★SPOT","素敵な夢を叶えましょう","YOU"] },
+  kuwata:      { name:"桑田佳祐",            icon:"🎤", sub:"ソロ TOP15", search:"桑田佳祐",
+    songs:["悲しい気持ち (JUST A MAN IN LOVE)","白い恋人達","波乗りジョニー","明日晴れるかな","いつか何処かで","月","真夜中のダンディー","祭りのあと","若い広場","Yin Yang〜陰陽〜","銀河の星屑","ダーリン","風の詩を聴かせて","君への手紙","ヨシ子さん"] },
+  yuzu:        { name:"ゆず",                icon:"🍋", sub:"TOP20", search:"ゆず",
+    songs:["夏色","栄光の架橋","サヨナラバス","いつか","雨のち晴レルヤ","飛べない鳥","友〜旅立ちの時〜","嗚呼、青春の日々","春風","虹","またあした","歩いていこう","桜木町","Hey和","里帰り","からっぽ","逢いたい","言葉にならない、笑顔を見せてくれよ","幸せ","いちご"] },
+  yuming:      { name:"松任谷由実",           icon:"✈️", sub:"TOP20", search:"松任谷由実",
+    songs:["春よ、来い","Hello, my friend","真夏の夜の夢","ルージュの伝言","やさしさに包まれたなら","あの日にかえりたい","恋人がサンタクロース","守ってあげたい","中央フリーウェイ","翳りゆく部屋","ひこうき雲","埠頭を渡る風","卒業写真","天国のドア","リフレインが叫んでる","ダンスのように抱き寄せたい","瞳を閉じて","雨の街を","ノーサイド","DESTINY"] },
+  backnumber:  { name:"back number",        icon:"💌", sub:"TOP10", search:"back number",
+    songs:["クリスマスソング","水平線","ヒロイン","ハッピーエンド","花束","高嶺の花子さん","オールドファッション","HAPPY BIRTHDAY","アンコール","瞬き"] },
+  mrs:         { name:"Mrs. GREEN APPLE",   icon:"🍎", sub:"TOP10", search:"Mrs GREEN APPLE",
+    songs:["ライラック","ダンスホール","ケセラセラ","青と夏","WanteD! WanteD!","僕のこと","Soranji","インフェルノ","Love me, Love you","点描の唄"] },
+  higedan:     { name:"Official髭男dism",   icon:"👔", sub:"TOP10", search:"Official髭男dism",
+    songs:["Pretender","イエスタデイ","Subtitle","Universe","I LOVE...","Cry Baby","Traveler","115万キロのフィルム","CITRUS","ミックスナッツ"] },
+  aimyon:      { name:"あいみょん",           icon:"🌼", sub:"TOP10", search:"あいみょん",
+    songs:["マリーゴールド","君はロックを聴かない","今夜このまま","ハルノヒ","裸の心","桜が降る夜は","愛を伝えたいだとか","生きていたんだよな","空の青さを知る人よ","あいみょん"] },
+  utada:       { name:"宇多田ヒカル",         icon:"🌟", sub:"TOP10", search:"宇多田ヒカル",
+    songs:["First Love","Automatic","SAKURAドロップス","Can You Keep A Secret?","花束を君に","traveling","Flavor Of Life","Beautiful World","光","HEART STATION"] },
+  shiina:      { name:"椎名林檎",            icon:"🎪", sub:"TOP10", search:"椎名林檎",
+    songs:["本能","丸ノ内サディスティック","ギブス","罪と罰","歌舞伎町の女王","ここでキスして。","幸福論","人生は夢だらけ","NIPPON","獣ゆく細道"] },
+  hoshino:     { name:"星野源",              icon:"🌈", sub:"TOP10", search:"星野源",
+    songs:["恋","Family Song","アイデア","ドラえもん","SUN","Pop Virus","不思議","創造","うちで踊ろう","喜劇"] },
+  misia:       { name:"MISIA",              icon:"💫", sub:"TOP10", search:"MISIA",
+    songs:["Everything","アイノカタチ","つつみ込むように…","逢いたくていま","輝かしき日々","明日へ","希望のうた","またここから","オルフェンズの涙","BELIEVE"] },
+  bump:        { name:"BUMP OF CHICKEN",    icon:"🐔", sub:"TOP10", search:"BUMP OF CHICKEN",
+    songs:["天体観測","花の名","車輪の唄","ダイヤモンド","Aurora","ゼロ","望遠のマーチ","Smile","ray","記念撮影"] },
+  spitz:       { name:"スピッツ",            icon:"🐶", sub:"TOP10", search:"スピッツ",
+    songs:["チェリー","ロビンソン","空も飛べるはず","優しいあの子","楓","8823","渚","春の歌","醒めない","夢追い虫"] },
+  radwimps:    { name:"RADWIMPS",           icon:"🌪", sub:"TOP10", search:"RADWIMPS",
+    songs:["前前前世","愛にできることはまだあるかい","有心論","なんでもないや","ふたりごと","スパークル","会心の一撃","トレモロ","そっけない","バイオレンス"] },
+  yonezu:      { name:"米津玄師",            icon:"🦋", sub:"TOP10", search:"米津玄師",
+    songs:["Lemon","Pale Blue","ピースサイン","LOSER","打上花火","Flamingo","馬と鹿","カムパネルラ","死神","海の幽霊"] },
+  kinggnu:     { name:"King Gnu",           icon:"👑", sub:"TOP10", search:"King Gnu",
+    songs:["白日","三文小説","飛行艇","Tremolo","千両役者","どろん","硝子窓","一途","傘","逆夢"] },
+  vaundy:      { name:"Vaundy",             icon:"⚡", sub:"TOP10", search:"Vaundy",
+    songs:["踊り子","怪獣の花唄","napori","東京フラッシュ","しわあわせ","まぶた","タイムパラドックス","灯火","恋風邪にのせて","チラリズム"] },
 };
 
 const PLAY_SEC=15, TOTAL_Q=10, OPTS=["A","B","C","D"];
@@ -314,30 +277,34 @@ const SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQAC
 let selectedArtists=[], isRandom=false;
 let score=0, miss=0, combo=0, round=0;
 let pool=[], usedIndexes=[], currentItem=null, choices=[];
-let timerInterval=null, elapsed=0, answered=false, audioUnlocked=false;
-let isPaused=false;
+let timerInterval=null, elapsed=0, answered=false, audioUnlocked=false, isPaused=false;
 
 const audioEl=document.getElementById('audio');
 
-// ══ iOS Audio解放 ══
+// ── アーティストボタン生成 ──
+function buildArtistGrid(){
+  const grid=document.getElementById('artist-grid');
+  Object.entries(LIBRARY).forEach(([key,a])=>{
+    const btn=document.createElement('button');
+    btn.className='artist-btn'; btn.dataset.artist=key;
+    btn.innerHTML=`<span class="a-icon">${a.icon}</span>${a.name}<span class="a-sub">${a.sub}</span>`;
+    btn.addEventListener('click',()=>toggleArtist(btn));
+    grid.appendChild(btn);
+  });
+}
+buildArtistGrid();
+
 function unlockAudio(){
-  if(audioUnlocked) return;
+  if(audioUnlocked)return;
   audioEl.src=SILENT;
   audioEl.play().then(()=>{ audioEl.pause(); audioEl.src=""; audioUnlocked=true; }).catch(()=>{});
 }
 
-// ══ アーティスト選択 ══
 function toggleArtist(btn){
   const key=btn.dataset.artist;
-  isRandom=false;
-  document.getElementById('random-btn').classList.remove('selected');
-  if(selectedArtists.includes(key)){
-    selectedArtists=selectedArtists.filter(k=>k!==key);
-    btn.classList.remove('selected');
-  } else {
-    selectedArtists.push(key);
-    btn.classList.add('selected');
-  }
+  isRandom=false; document.getElementById('random-btn').classList.remove('selected');
+  if(selectedArtists.includes(key)){ selectedArtists=selectedArtists.filter(k=>k!==key); btn.classList.remove('selected'); }
+  else { selectedArtists.push(key); btn.classList.add('selected'); }
   updateStartBtn();
 }
 function toggleRandom(){
@@ -348,28 +315,20 @@ function toggleRandom(){
 }
 function updateStartBtn(){ document.getElementById('btn-start').disabled=!(isRandom||selectedArtists.length>0); }
 
-// ══ ゲーム開始 ══
 function onStart(){
   unlockAudio();
   score=0; miss=0; combo=0; round=0; usedIndexes=[];
   pool=[];
-  const keys = isRandom ? Object.keys(LIBRARY) : selectedArtists;
-  keys.forEach(key=>{
-    LIBRARY[key].songs.forEach(song=>{
-      pool.push({ song, artistKey:key, artistName:LIBRARY[key].name, search:LIBRARY[key].search });
-    });
-  });
+  const keys=isRandom?Object.keys(LIBRARY):selectedArtists;
+  keys.forEach(key=>{ LIBRARY[key].songs.forEach(song=>{ pool.push({song,artistName:LIBRARY[key].name,search:LIBRARY[key].search}); }); });
   pool=shuffle(pool);
-  updateScoreUI();
-  nextRound();
+  updateScoreUI(); nextRound();
 }
-document.getElementById('btn-start').addEventListener('click', onStart);
-document.getElementById('btn-retry').addEventListener('click', onStart);
+document.getElementById('btn-start').addEventListener('click',onStart);
+document.getElementById('btn-retry').addEventListener('click',onStart);
 
-// ══ ラウンド ══
 async function nextRound(){
-  stopAudio(); answered=false; isPaused=false;
-  updatePauseBtn();
+  stopAudio(); answered=false; isPaused=false; updatePauseBtn();
   hideViz();
   document.getElementById('answer-reveal').style.display='none';
   document.getElementById('skip-notice').style.display='none';
@@ -380,50 +339,38 @@ async function nextRound(){
   if(!available.length||round>=TOTAL_Q){ showResult(); return; }
 
   const item=shuffle(available)[0];
-  const idx=pool.indexOf(item);
-  usedIndexes.push(idx);
+  usedIndexes.push(pool.indexOf(item));
   currentItem=item;
 
-  const otherSongs=shuffle(pool.filter(p=>p.song!==item.song).map(p=>p.song));
-  const others=[...new Set(otherSongs)].slice(0,3);
+  const others=[...new Set(shuffle(pool.filter(p=>p.song!==item.song).map(p=>p.song)))].slice(0,3);
   choices=shuffle([item.song,...others]);
 
   document.getElementById('round-label').textContent=`${round+1} / ${TOTAL_Q}問`;
-  document.getElementById('loading-info').textContent=item.artistName+' — '+item.song.substring(0,8)+'...';
+  document.getElementById('loading-info').textContent=item.artistName;
   showScreen('loading');
 
-  // iTunesで音源検索（2回まで試行）
-  let url = await fetchPreview(item.search, item.song);
-  if(!url) url = await fetchPreview(item.artistName, item.song);
+  let url=await fetchPreview(item.search,item.song);
+  if(!url) url=await fetchPreview(item.artistName,item.song);
 
-  buildChoices();
-  resetBar();
+  buildChoices(); resetBar();
   document.getElementById('time-display').textContent=PLAY_SEC;
   document.getElementById('time-display').style.color='var(--red)';
   showScreen('game');
 
   if(!url){
-    // 音源なし → 3秒後に自動スキップ（ノーカウント）
     document.getElementById('skip-notice').style.display='block';
     document.getElementById('pause-btn').style.display='none';
     document.querySelectorAll('.choice-btn').forEach(b=>b.disabled=true);
-    setTimeout(()=>{ round++; nextRound(); }, 3000);
-    return;
+    setTimeout(()=>{ round++; nextRound(); },3000); return;
   }
 
-  audioEl.src=url;
-  audioEl.currentTime=0;
-  audioEl.play().then(()=>{ buildViz(); startTimer(); })
-    .catch(()=>{ startTimer(); });
+  audioEl.src=url; audioEl.currentTime=0;
+  audioEl.play().then(()=>{ buildViz(); startTimer(); }).catch(()=>{ startTimer(); });
 }
 
-function stopAudio(){
-  audioEl.pause(); audioEl.removeAttribute('src');
-  clearInterval(timerInterval); timerInterval=null;
-}
+function stopAudio(){ audioEl.pause(); audioEl.removeAttribute('src'); clearInterval(timerInterval); timerInterval=null; }
 
-// ══ iTunes API ══
-async function fetchPreview(artistSearch, song){
+async function fetchPreview(artistSearch,song){
   try{
     const q=encodeURIComponent(artistSearch+' '+song);
     const r=await fetch(`https://itunes.apple.com/search?term=${q}&entity=song&country=jp&limit=5`);
@@ -433,11 +380,10 @@ async function fetchPreview(artistSearch, song){
   }catch{ return null; }
 }
 
-// ══ タイマー ══
 function startTimer(){
   elapsed=0;
   timerInterval=setInterval(()=>{
-    if(isPaused) return;
+    if(isPaused)return;
     elapsed+=0.1;
     const left=Math.max(0,PLAY_SEC-elapsed);
     const pct=left/PLAY_SEC;
@@ -460,12 +406,10 @@ function timeUp(){
   answered=true; miss++; combo=0; stopAudio(); hideViz(); updateScoreUI(); revealAnswer(false); scheduleNext();
 }
 
-// ══ ポーズ ══
 function togglePause(){
   if(answered)return;
   isPaused=!isPaused;
-  if(isPaused){ audioEl.pause(); }
-  else { audioEl.play().catch(()=>{}); }
+  isPaused?audioEl.pause():audioEl.play().catch(()=>{});
   updatePauseBtn();
 }
 function updatePauseBtn(){
@@ -474,12 +418,10 @@ function updatePauseBtn(){
   btn.classList.toggle('paused',isPaused);
 }
 
-// ══ 選択肢 ══
 function buildChoices(){
   const c=document.getElementById('choices'); c.innerHTML='';
   choices.forEach((song,i)=>{
-    const btn=document.createElement('button');
-    btn.className='choice-btn';
+    const btn=document.createElement('button'); btn.className='choice-btn';
     btn.innerHTML=`<span class="opt-label">${OPTS[i]}</span>${song}`;
     btn.addEventListener('click',()=>handleAnswer(song,btn));
     c.appendChild(btn);
@@ -495,8 +437,7 @@ function handleAnswer(song,btn){
     else if(b===btn)b.classList.add('wrong-pick');
     else b.classList.add('dim');
   });
-  if(ok){score++;combo++;if(combo>=2)showCombo(combo);}
-  else{miss++;combo=0;}
+  if(ok){score++;combo++;if(combo>=2)showCombo(combo);}else{miss++;combo=0;}
   updateScoreUI(); revealAnswer(ok); scheduleNext();
 }
 function revealAnswer(ok){
@@ -515,8 +456,6 @@ function showCombo(n){
   const el=document.getElementById('combo-overlay');
   el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1700);
 }
-
-// ══ ビジュアライザー ══
 function buildViz(){
   const v=document.getElementById('visualizer'); v.innerHTML='';
   [16,28,42,34,50,38,24,46,32,20].forEach((h,i)=>{
@@ -526,8 +465,6 @@ function buildViz(){
   });
 }
 function hideViz(){ document.getElementById('visualizer').innerHTML=''; }
-
-// ══ 結果 ══
 function showResult(){
   const pct=(score/TOTAL_Q)*100;
   const rank=pct>=90?'🏆 完璧！':pct>=70?'🎸 すごい！':pct>=50?'🎵 なかなか！':pct>=30?'😅 もう少し！':'🔰 要特訓！';
@@ -536,8 +473,6 @@ function showResult(){
   document.getElementById('result-detail').textContent=`正解 ${score}問 ／ ミス ${miss}問`;
   showScreen('result');
 }
-
-// ══ 共通 ══
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   const el=document.getElementById('screen-'+id); el.classList.add('active'); void el.offsetWidth;
