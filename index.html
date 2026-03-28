@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>ミスチル イントロクイズ</title>
+<title>イントロクイズ</title>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
   :root {
@@ -25,94 +25,120 @@
     background: radial-gradient(ellipse at 15% 50%,rgba(255,50,50,0.08) 0%,transparent 55%),
                 radial-gradient(ellipse at 85% 20%,rgba(80,80,255,0.07) 0%,transparent 55%); }
 
-.screen { position:relative; z-index:1; width:100%; max-width:400px; display:none; animation:fadeUp 0.35s ease; }
+.screen { position:relative; z-index:1; width:100%; max-width:420px; display:none; animation:fadeUp 0.35s ease; }
 .screen.active { display:block; }
 @keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
 
 .card { background:var(–card); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-border:1px solid var(–border); border-radius:24px; padding:32px 24px;
+border:1px solid var(–border); border-radius:24px; padding:28px 22px;
 box-shadow:0 0 60px rgba(255,50,50,0.08),0 24px 60px rgba(0,0,0,0.6); }
 
-.title-label { font-size:10px; letter-spacing:5px; color:var(–red); text-transform:uppercase; text-align:center; margin-bottom:18px; }
-.title-main { font-size:38px; font-weight:900; text-align:center; letter-spacing:-1px; line-height:1.1; margin-bottom:4px; }
-.title-sub { font-size:12px; color:rgba(255,255,255,0.35); text-align:center; letter-spacing:3px; margin-bottom:4px; }
-.title-desc { font-size:12px; color:rgba(255,255,255,0.3); text-align:center; margin-bottom:28px; }
-.info-box { background:rgba(255,58,58,0.07); border:1px solid rgba(255,58,58,0.2);
-border-radius:14px; padding:16px 18px; margin-bottom:26px;
-font-size:13px; color:rgba(255,255,255,0.65); line-height:1.8; }
+/* TITLE */
+.title-label { font-size:10px; letter-spacing:5px; color:var(–red); text-transform:uppercase; text-align:center; margin-bottom:14px; }
+.title-main { font-size:34px; font-weight:900; text-align:center; letter-spacing:-1px; line-height:1.1; margin-bottom:4px; }
+.title-sub { font-size:11px; color:rgba(255,255,255,0.3); text-align:center; letter-spacing:3px; margin-bottom:24px; }
 
-.btn-main { width:100%; padding:17px; font-size:16px; font-weight:800;
+/* ARTIST SELECT */
+.section-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.4); margin-bottom:12px; text-transform:uppercase; }
+.artist-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:10px; }
+.artist-btn {
+padding:16px 10px; font-size:13px; font-weight:700;
+background:rgba(255,255,255,0.06); color:#fff;
+border:1px solid rgba(255,255,255,0.12); border-radius:14px;
+cursor:pointer; font-family:inherit; text-align:center; line-height:1.4;
+transition:all 0.2s;
+}
+.artist-btn:active { transform:scale(0.95); }
+.artist-btn .a-icon { font-size:22px; display:block; margin-bottom:6px; }
+.artist-btn .a-name { font-size:11px; display:block; }
+.artist-btn.selected {
+background:rgba(255,58,58,0.18);
+border-color:rgba(255,58,58,0.6);
+box-shadow:0 0 16px rgba(255,58,58,0.25);
+}
+
+.random-btn {
+width:100%; padding:14px; font-size:14px; font-weight:700;
+background:rgba(255,200,0,0.1); color:#ffd700;
+border:1px solid rgba(255,200,0,0.3); border-radius:14px;
+cursor:pointer; font-family:inherit; margin-bottom:20px;
+transition:all 0.2s;
+}
+.random-btn:active { transform:scale(0.97); }
+.random-btn.selected { background:rgba(255,200,0,0.2); border-color:#ffd700; box-shadow:0 0 16px rgba(255,200,0,0.3); }
+
+.btn-main { width:100%; padding:16px; font-size:16px; font-weight:800;
 background:linear-gradient(135deg,#ff4040,#e02020); color:#fff; border:none;
 border-radius:14px; cursor:pointer; letter-spacing:2px;
 box-shadow:0 0 28px var(–red-g); font-family:inherit; transition:transform 0.1s; }
 .btn-main:active { transform:scale(0.96); }
+.btn-main:disabled { opacity:0.4; cursor:default; box-shadow:none; }
 .btn-sub { flex:1; padding:14px; font-size:14px; font-weight:600;
 background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.65);
 border:1px solid rgba(255,255,255,0.15); border-radius:12px;
 cursor:pointer; font-family:inherit; transition:transform 0.1s; }
 .btn-sub:active { transform:scale(0.96); }
 
+/* LOADING */
 .loading-icon { font-size:36px; text-align:center; margin-bottom:14px; animation:spin 1s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
 .loading-text { font-size:15px; color:rgba(255,255,255,0.55); text-align:center; }
+.loading-artist { font-size:12px; color:rgba(255,255,255,0.3); text-align:center; margin-top:8px; }
 
-.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:16px; }
+/* GAME */
+.game-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; }
 .round-label { font-size:12px; color:rgba(255,255,255,0.38); letter-spacing:1px; }
 .score-box { display:flex; gap:14px; font-size:13px; }
 .score-correct { color:var(–green); }
 .score-miss { color:#ff6666; }
 
-.timer-track { background:rgba(255,255,255,0.07); border-radius:6px; height:5px; margin-bottom:20px; overflow:hidden; }
-#timer-bar { height:100%; width:100%; border-radius:6px; background:var(–red);
-box-shadow:0 0 8px var(–red-g); transition:width 0.15s linear,background 0.5s; }
+.now-artist { font-size:10px; color:rgba(255,255,255,0.3); text-align:center; margin-bottom:10px; letter-spacing:1px; }
 
-.visualizer { display:flex; justify-content:center; align-items:flex-end; gap:5px; height:52px; margin-bottom:4px; }
-.bar { width:5px; border-radius:4px; background:linear-gradient(to top,var(–red),#ff8080);
-animation:wave 0s ease-in-out infinite alternate; }
+.timer-track { background:rgba(255,255,255,0.07); border-radius:6px; height:5px; margin-bottom:18px; overflow:hidden; }
+#timer-bar { height:100%; width:100%; border-radius:6px; background:var(–red); transition:width 0.15s linear,background 0.5s; }
+
+.visualizer { display:flex; justify-content:center; align-items:flex-end; gap:5px; height:48px; margin-bottom:4px; }
+.bar { width:5px; border-radius:4px; background:linear-gradient(to top,var(–red),#ff8080); animation:wave 0s ease-in-out infinite alternate; }
 @keyframes wave { from{transform:scaleY(0.3)} to{transform:scaleY(1)} }
 
-.time-display { font-size:30px; font-weight:900; text-align:center; margin-bottom:18px;
+.time-display { font-size:28px; font-weight:900; text-align:center; margin-bottom:16px;
 font-variant-numeric:tabular-nums; transition:color 0.4s; text-shadow:0 0 20px currentColor; }
 
-.answer-reveal { text-align:center; margin-bottom:16px; animation:fadeUp 0.3s ease; }
-.answer-emoji { font-size:38px; margin-bottom:8px; }
+.answer-reveal { text-align:center; margin-bottom:14px; animation:fadeUp 0.3s ease; }
+.answer-emoji { font-size:36px; margin-bottom:6px; }
 .answer-label { font-size:11px; color:rgba(255,255,255,0.4); margin-bottom:4px; }
-.answer-name { font-size:18px; font-weight:700; }
+.answer-name { font-size:17px; font-weight:700; }
+.answer-artist { font-size:11px; color:rgba(255,255,255,0.4); margin-top:2px; }
 
-.choices { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-.choice-btn { padding:13px 8px; font-size:13px; font-weight:600;
+.choices { display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+.choice-btn { padding:12px 8px; font-size:12px; font-weight:600;
 background:rgba(255,255,255,0.07); color:#fff;
 border:1px solid rgba(255,255,255,0.13); border-radius:13px; cursor:pointer;
-font-family:inherit; line-height:1.4; min-height:58px;
-display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px;
-transition:transform 0.1s,background 0.2s,border-color 0.2s;
-word-break:break-all; text-align:center; }
+font-family:inherit; line-height:1.4; min-height:56px;
+display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
+transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:center; }
 .choice-btn .opt-label { font-size:10px; color:rgba(255,255,255,0.35); font-weight:500; }
 .choice-btn:active:not(:disabled) { transform:scale(0.95); }
 .choice-btn:disabled { cursor:default; }
-.choice-btn.correct { background:rgba(57,255,138,0.15); border-color:rgba(57,255,138,0.5);
-color:var(–green); box-shadow:0 0 18px rgba(57,255,138,0.25); animation:popIn 0.35s ease; }
-.choice-btn.wrong-pick { background:rgba(255,60,60,0.15); border-color:rgba(255,60,60,0.5);
-color:#ff6666; animation:shake 0.35s ease; }
+.choice-btn.correct { background:rgba(57,255,138,0.15); border-color:rgba(57,255,138,0.5); color:var(–green); box-shadow:0 0 18px rgba(57,255,138,0.2); animation:popIn 0.35s ease; }
+.choice-btn.wrong-pick { background:rgba(255,60,60,0.15); border-color:rgba(255,60,60,0.5); color:#ff6666; animation:shake 0.35s ease; }
 .choice-btn.dim { opacity:0.3; }
 @keyframes popIn { 0%{transform:scale(1)} 40%{transform:scale(1.05)} 100%{transform:scale(1)} }
 @keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(3px)} }
 
-#combo-overlay { display:none; position:fixed; inset:0; z-index:50; pointer-events:none;
-align-items:center; justify-content:center; }
+#combo-overlay { display:none; position:fixed; inset:0; z-index:50; pointer-events:none; align-items:center; justify-content:center; }
 #combo-overlay.show { display:flex; }
-.combo-badge { background:rgba(0,0,0,0.88); border:2px solid var(–red); border-radius:18px;
-padding:18px 32px; text-align:center; box-shadow:0 0 40px var(–red-g);
-animation:comboPop 1.6s ease forwards; }
+.combo-badge { background:rgba(0,0,0,0.88); border:2px solid var(–red); border-radius:18px; padding:16px 28px; text-align:center; box-shadow:0 0 40px var(–red-g); animation:comboPop 1.6s ease forwards; }
 .combo-title { font-size:11px; letter-spacing:4px; color:var(–red); margin-bottom:4px; }
-.combo-num { font-size:52px; font-weight:900; color:var(–red); line-height:1; }
+.combo-num { font-size:48px; font-weight:900; color:var(–red); line-height:1; }
 @keyframes comboPop { 0%{opacity:0;transform:scale(0.4)} 25%{opacity:1;transform:scale(1.12)} 50%{transform:scale(1)} 75%{opacity:1} 100%{opacity:0;transform:scale(0.9)} }
 
-.result-label { font-size:10px; letter-spacing:5px; color:var(–red); text-align:center; margin-bottom:18px; }
-.result-score { font-size:72px; font-weight:900; text-align:center; line-height:1; margin-bottom:4px; }
-.result-score span { font-size:22px; color:rgba(255,255,255,0.4); }
-.result-rank { font-size:20px; text-align:center; margin-bottom:8px; }
-.result-detail { font-size:12px; color:rgba(255,255,255,0.38); text-align:center; margin-bottom:28px; }
+/* RESULT */
+.result-label { font-size:10px; letter-spacing:5px; color:var(–red); text-align:center; margin-bottom:16px; }
+.result-score { font-size:68px; font-weight:900; text-align:center; line-height:1; margin-bottom:4px; }
+.result-score span { font-size:20px; color:rgba(255,255,255,0.4); }
+.result-rank { font-size:19px; text-align:center; margin-bottom:8px; }
+.result-detail { font-size:12px; color:rgba(255,255,255,0.38); text-align:center; margin-bottom:24px; }
 .result-btns { display:flex; gap:10px; }
 
 .footer { position:relative; z-index:1; margin-top:14px; font-size:10px; color:rgba(255,255,255,0.18); text-align:center; line-height:1.7; }
@@ -121,25 +147,43 @@ animation:comboPop 1.6s ease forwards; }
 </head>
 <body>
 <div class="bg-glow"></div>
-
-<!-- ★iOS解放用 隠しaudio要素 -->
-
 <audio id="audio" playsinline webkit-playsinline preload="none"></audio>
 
-<!-- TITLE -->
+<!-- TITLE / ARTIST SELECT -->
 
 <div id="screen-title" class="screen active">
   <div class="card">
     <div class="title-label">INTRO QUIZ</div>
-    <div class="title-main">ミスチル</div>
-    <div class="title-sub">Mr.Children</div>
-    <div class="title-desc">TOP 30 イントロ早押しクイズ</div>
-    <div class="info-box">
-      🎵 イントロを聴いて曲名を当てよう！<br>
-      ⏱ 15秒以内に4択から早押し<br>
-      🔥 全10問チャレンジ！
-    </div>
-    <button class="btn-main" id="btn-start">▶ スタート</button>
+    <div class="title-main">イントロクイズ</div>
+    <div class="title-sub">J-POP 早押し 4択</div>
+
+```
+<div class="section-label">アーティストを選ぶ</div>
+<div class="artist-grid">
+  <button class="artist-btn" data-artist="mrchildren" onclick="toggleArtist(this)">
+    <span class="a-icon">🎸</span>
+    <span>Mr.Children</span>
+    <span class="a-name">ミスチル</span>
+  </button>
+  <button class="artist-btn" data-artist="southern" onclick="toggleArtist(this)">
+    <span class="a-icon">🌊</span>
+    <span>サザン</span>
+    <span class="a-name">オールスターズ</span>
+  </button>
+  <button class="artist-btn" data-artist="kuwata" onclick="toggleArtist(this)">
+    <span class="a-icon">🎤</span>
+    <span>桑田佳祐</span>
+    <span class="a-name">ソロ</span>
+  </button>
+</div>
+
+<button class="random-btn" id="random-btn" onclick="toggleRandom()">
+  🎲 ランダム（全アーティスト混合）
+</button>
+
+<button class="btn-main" id="btn-start" onclick="onStart()" disabled>▶ スタート</button>
+```
+
   </div>
 </div>
 
@@ -149,6 +193,7 @@ animation:comboPop 1.6s ease forwards; }
   <div class="card" style="text-align:center;padding:48px 24px;">
     <div class="loading-icon">🎵</div>
     <div class="loading-text">楽曲を読み込み中...</div>
+    <div class="loading-artist" id="loading-info"></div>
   </div>
 </div>
 
@@ -164,13 +209,14 @@ animation:comboPop 1.6s ease forwards; }
       </div>
     </div>
     <div class="timer-track"><div id="timer-bar"></div></div>
-    <div id="error-msg" style="display:none;text-align:center;font-size:12px;color:rgba(255,255,255,0.38);padding:10px 0 4px;">⚠ 音源なし — 曲名から推測して！</div>
+    <div id="error-msg" style="display:none;text-align:center;font-size:11px;color:rgba(255,255,255,0.35);padding:8px 0 2px;">⚠ 音源なし — 曲名から推測して！</div>
     <div class="visualizer" id="visualizer"></div>
     <div class="time-display" id="time-display">15</div>
     <div class="answer-reveal" id="answer-reveal" style="display:none;">
       <div class="answer-emoji" id="answer-emoji"></div>
       <div class="answer-label">正解</div>
       <div class="answer-name" id="answer-name"></div>
+      <div class="answer-artist" id="answer-artist-label"></div>
     </div>
     <div class="choices" id="choices"></div>
   </div>
@@ -186,7 +232,7 @@ animation:comboPop 1.6s ease forwards; }
     <div class="result-detail" id="result-detail"></div>
     <div class="result-btns">
       <button class="btn-main" style="flex:1" id="btn-retry">もう一度</button>
-      <button class="btn-sub" onclick="showScreen('title')">タイトル</button>
+      <button class="btn-sub" onclick="showScreen('title')">選択に戻る</button>
     </div>
   </div>
 </div>
@@ -198,51 +244,146 @@ animation:comboPop 1.6s ease forwards; }
   </div>
 </div>
 
-<div class="footer">♪ iTunes Preview 使用 ／ 著作権はMr.Childrenに帰属します</div>
+<div class="footer">♪ iTunes Preview 使用 ／ 著作権は各アーティストに帰属します</div>
 
 <script>
-const SONGS = [
-  "365日","GIFT","終わりなき旅","HANABI","名もなき詩",
-  "しるし","抱きしめたい","Tomorrow never knows","Over","Sign",
-  "君がいた夏","花の匂い","旅立ちの唄","ひまわり","innocent world",
-  "彩り","口笛","くるみ","Your Song","Birthday",
-  "足音 〜Be Strong","HERO","シーソーゲーム 〜勇敢な恋の歌〜",
-  "youthful days","ALIVE","CROSS ROAD","エソラ","NOT FOUND",
-  "fanfare","光の射す方へ"
-];
-const PLAY_SEC=15, TOTAL_Q=10, OPTS=["A","B","C","D"];
+// ══════════════════════════════════════════
+//  楽曲データ
+// ══════════════════════════════════════════
+const LIBRARY = {
+  mrchildren: {
+    name: "Mr.Children",
+    search: "Mr.Children",
+    songs: [
+      "365日","GIFT","終わりなき旅","HANABI","名もなき詩",
+      "しるし","抱きしめたい","Tomorrow never knows","Over","Sign",
+      "君がいた夏","花の匂い","旅立ちの唄","ひまわり","innocent world",
+      "彩り","口笛","くるみ","Your Song","Birthday",
+      "足音 〜Be Strong","HERO","シーソーゲーム 〜勇敢な恋の歌〜",
+      "youthful days","ALIVE","CROSS ROAD","エソラ","NOT FOUND",
+      "fanfare","光の射す方へ"
+    ]
+  },
+  southern: {
+    name: "サザンオールスターズ",
+    search: "サザンオールスターズ",
+    songs: [
+      "TSUNAMI","勝手にシンドバッド","いとしのエリー",
+      "LOVE AFFAIR〜秘密のデート","真夏の果実","C調言葉に御用心",
+      "エロティカ・セブン","HOTEL PACIFIC","希望の轍",
+      "ミス・ブランニュー・デイ","涙のキッス","夏をあきらめて",
+      "シュラバ★ラ★バンバ","Bye Bye My Love","心を開いて",
+      "女神達への情歌","みんなのうた","愛の言霊〜Spiritual Message",
+      "蛍","ピースとハイライト","栄光の男","東京VICTORY",
+      "匂艶 THE NIGHT CLUB","太陽は罪な奴","君こそスターだ",
+      "恋人も濡れる街角","神の島遥か国","マンピーのG★SPOT",
+      "素敵な夢を叶えましょう","ラチェット"
+    ]
+  },
+  kuwata: {
+    name: "桑田佳祐",
+    search: "桑田佳祐",
+    songs: [
+      "悲しい気持ち (JUST A MAN IN LOVE)","白い恋人達","波乗りジョニー",
+      "明日晴れるかな","いつか何処かで","月","真夜中のダンディー",
+      "祭りのあと","若い広場","Yin Yang〜陰陽〜",
+      "銀河の星屑","ダーリン","風の詩を聴かせて","君への手紙","ヨシ子さん"
+    ]
+  }
+};
 
-// 無音WAV (43バイト) - iOS Audio解放用
+const PLAY_SEC=15, TOTAL_Q=10, OPTS=["A","B","C","D"];
 const SILENT="data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
 
-let score=0,miss=0,combo=0,round=0,usedSongs=[],currentSong=null,choices=[];
-let timerInterval=null,elapsed=0,answered=false,audioUnlocked=false;
+// ══════════════════════════════════════════
+//  状態
+// ══════════════════════════════════════════
+let selectedArtists=[], isRandom=false;
+let score=0,miss=0,combo=0,round=0;
+let pool=[], usedIndexes=[], currentItem=null, choices=[];
+let timerInterval=null, elapsed=0, answered=false, audioUnlocked=false;
 
 const audioEl=document.getElementById('audio');
 
-// ★★★ iOS Audio解放の核心 ★★★
-// ユーザーのタップイベント内（同期）でplay()を呼ぶことでiOSの制限を突破
+// ══════════════════════════════════════════
+//  アーティスト選択UI
+// ══════════════════════════════════════════
+function toggleArtist(btn) {
+  const key=btn.dataset.artist;
+  // ランダム解除
+  isRandom=false;
+  document.getElementById('random-btn').classList.remove('selected');
+
+  if(selectedArtists.includes(key)){
+    selectedArtists=selectedArtists.filter(k=>k!==key);
+    btn.classList.remove('selected');
+  } else {
+    selectedArtists.push(key);
+    btn.classList.add('selected');
+  }
+  updateStartBtn();
+}
+
+function toggleRandom() {
+  isRandom=!isRandom;
+  document.getElementById('random-btn').classList.toggle('selected', isRandom);
+  if(isRandom){
+    // アーティスト個別選択を解除
+    selectedArtists=[];
+    document.querySelectorAll('.artist-btn').forEach(b=>b.classList.remove('selected'));
+  }
+  updateStartBtn();
+}
+
+function updateStartBtn(){
+  const ok = isRandom || selectedArtists.length>0;
+  document.getElementById('btn-start').disabled=!ok;
+}
+
+// ══════════════════════════════════════════
+//  iOS Audio解放
+// ══════════════════════════════════════════
 function unlockAudio(){
   if(audioUnlocked) return;
   audioEl.src=SILENT;
-  audioEl.play().then(()=>{
-    audioEl.pause();
-    audioEl.src="";
-    audioUnlocked=true;
-  }).catch(()=>{});
+  audioEl.play().then(()=>{ audioEl.pause(); audioEl.src=""; audioUnlocked=true; }).catch(()=>{});
 }
 
-function startGame(){
-  unlockAudio(); // ← タップ直後の同期文脈でここを呼ぶ
-  score=0;miss=0;combo=0;round=0;usedSongs=[];
+// ══════════════════════════════════════════
+//  ゲーム開始
+// ══════════════════════════════════════════
+function onStart(){
+  unlockAudio();
+  score=0; miss=0; combo=0; round=0; usedIndexes=[];
+
+  // プールを作る
+  if(isRandom){
+    pool=[];
+    Object.keys(LIBRARY).forEach(key=>{
+      LIBRARY[key].songs.forEach(song=>{
+        pool.push({ song, artistKey:key, artistName:LIBRARY[key].name, search:LIBRARY[key].search });
+      });
+    });
+  } else {
+    pool=[];
+    selectedArtists.forEach(key=>{
+      LIBRARY[key].songs.forEach(song=>{
+        pool.push({ song, artistKey:key, artistName:LIBRARY[key].name, search:LIBRARY[key].search });
+      });
+    });
+  }
+  pool=shuffle(pool);
+
   updateScoreUI();
   nextRound();
 }
 
-// ボタンをaddEventListenerで登録（onclick属性より確実）
-document.getElementById('btn-start').addEventListener('click', startGame);
-document.getElementById('btn-retry').addEventListener('click', startGame);
+document.getElementById('btn-start').addEventListener('click', onStart);
+document.getElementById('btn-retry').addEventListener('click', onStart);
 
+// ══════════════════════════════════════════
+//  ラウンド
+// ══════════════════════════════════════════
 async function nextRound(){
   stopAudio(); answered=false;
   hideViz();
@@ -250,15 +391,28 @@ async function nextRound(){
   document.getElementById('error-msg').style.display='none';
   document.getElementById('time-display').style.display='block';
 
-  const avail=SONGS.filter(s=>!usedSongs.includes(s));
-  if(!avail.length||round>=TOTAL_Q){showResult();return;}
+  const available=pool.filter((_,i)=>!usedIndexes.includes(i));
+  if(!available.length || round>=TOTAL_Q){ showResult(); return; }
 
-  currentSong=shuffle(avail)[0];
-  choices=shuffle([currentSong,...shuffle(SONGS.filter(s=>s!==currentSong)).slice(0,3)]);
+  const idx=pool.indexOf(shuffle(available)[0]);
+  usedIndexes.push(idx);
+  currentItem=pool[idx];
+
+  // 4択: 同じアーティストの曲から選ぶ（ランダム時は全曲から）
+  let allSongs;
+  if(isRandom){
+    allSongs=pool.map(p=>p.song);
+  } else {
+    allSongs=pool.map(p=>p.song);
+  }
+  const others=shuffle(allSongs.filter(s=>s!==currentItem.song)).slice(0,3);
+  choices=shuffle([currentItem.song,...others]);
+
   document.getElementById('round-label').textContent=`${round+1} / ${TOTAL_Q}問`;
+  document.getElementById('loading-info').textContent=currentItem.artistName;
   showScreen('loading');
 
-  const url=await fetchPreview(currentSong);
+  const url=await fetchPreview(currentItem.search, currentItem.song);
 
   buildChoices();
   resetBar();
@@ -268,38 +422,36 @@ async function nextRound(){
 
   if(!url){
     document.getElementById('error-msg').style.display='block';
-    startTimer();return;
+    startTimer(); return;
   }
 
-  // 解放済みaudioElのsrcを差し替えて再生
   audioEl.src=url;
   audioEl.currentTime=0;
-  audioEl.play().then(()=>{
-    buildViz();
-    startTimer();
-  }).catch(err=>{
-    console.warn('play error:',err);
-    document.getElementById('error-msg').style.display='block';
-    startTimer();
-  });
+  audioEl.play().then(()=>{ buildViz(); startTimer(); })
+    .catch(()=>{ document.getElementById('error-msg').style.display='block'; startTimer(); });
 }
 
 function stopAudio(){
-  audioEl.pause();
-  audioEl.removeAttribute('src');
-  clearInterval(timerInterval);timerInterval=null;
+  audioEl.pause(); audioEl.removeAttribute('src');
+  clearInterval(timerInterval); timerInterval=null;
 }
 
-async function fetchPreview(song){
+// ══════════════════════════════════════════
+//  iTunes API
+// ══════════════════════════════════════════
+async function fetchPreview(artistSearch, song){
   try{
-    const q=encodeURIComponent('Mr.Children '+song);
+    const q=encodeURIComponent(artistSearch+' '+song);
     const r=await fetch(`https://itunes.apple.com/search?term=${q}&entity=song&country=jp&limit=8`);
     const d=await r.json();
     const h=(d.results||[]).find(x=>x.previewUrl);
     return h?h.previewUrl:null;
-  }catch{return null;}
+  }catch{ return null; }
 }
 
+// ══════════════════════════════════════════
+//  タイマー
+// ══════════════════════════════════════════
 function startTimer(){
   elapsed=0;
   timerInterval=setInterval(()=>{
@@ -308,90 +460,104 @@ function startTimer(){
     const pct=left/PLAY_SEC;
     const c=pct>0.5?'var(--red)':pct>0.25?'#ff8800':'#ffcc00';
     const td=document.getElementById('time-display');
-    td.textContent=Math.ceil(left);
-    td.style.color=c;td.style.textShadow=`0 0 20px ${c}`;
+    td.textContent=Math.ceil(left); td.style.color=c; td.style.textShadow=`0 0 20px ${c}`;
     updateBar(pct);
-    if(left<=0){clearInterval(timerInterval);audioEl.pause();timeUp();}
+    if(left<=0){ clearInterval(timerInterval); audioEl.pause(); timeUp(); }
   },100);
 }
-
-function resetBar(){const b=document.getElementById('timer-bar');b.style.transition='none';b.style.width='100%';}
+function resetBar(){ const b=document.getElementById('timer-bar'); b.style.transition='none'; b.style.width='100%'; }
 function updateBar(pct){
   const b=document.getElementById('timer-bar');
   b.style.transition='width 0.15s linear,background 0.5s';
   b.style.width=(pct*100)+'%';
   b.style.background=pct>0.5?'var(--red)':pct>0.25?'#ff8800':'#ffcc00';
 }
-
 function timeUp(){
   if(answered)return;
-  answered=true;miss++;combo=0;
-  stopAudio();hideViz();updateScoreUI();revealAnswer(false);scheduleNext();
+  answered=true; miss++; combo=0; stopAudio(); hideViz(); updateScoreUI(); revealAnswer(false); scheduleNext();
 }
 
+// ══════════════════════════════════════════
+//  選択肢
+// ══════════════════════════════════════════
 function buildChoices(){
-  const c=document.getElementById('choices');c.innerHTML='';
+  const c=document.getElementById('choices'); c.innerHTML='';
   choices.forEach((song,i)=>{
     const btn=document.createElement('button');
     btn.className='choice-btn';
     btn.innerHTML=`<span class="opt-label">${OPTS[i]}</span>${song}`;
-    btn.addEventListener('click',()=>handleAnswer(song,btn,i));
+    btn.addEventListener('click',()=>handleAnswer(song,btn));
     c.appendChild(btn);
   });
 }
 
 function handleAnswer(song,btn){
   if(answered)return;
-  answered=true;stopAudio();hideViz();
-  const ok=song===currentSong;
+  answered=true; stopAudio(); hideViz();
+  const ok=song===currentItem.song;
   document.querySelectorAll('.choice-btn').forEach((b,i)=>{
     b.disabled=true;
-    if(choices[i]===currentSong)b.classList.add('correct');
-    else if(b===btn)b.classList.add('wrong-pick');
+    if(choices[i]===currentItem.song) b.classList.add('correct');
+    else if(b===btn) b.classList.add('wrong-pick');
     else b.classList.add('dim');
   });
-  if(ok){score++;combo++;if(combo>=2)showCombo(combo);}
-  else{miss++;combo=0;}
-  updateScoreUI();revealAnswer(ok);scheduleNext();
+  if(ok){ score++; combo++; if(combo>=2) showCombo(combo); }
+  else{ miss++; combo=0; }
+  updateScoreUI(); revealAnswer(ok); scheduleNext();
 }
 
 function revealAnswer(ok){
   document.getElementById('answer-emoji').textContent=ok?'🎉':'😭';
-  document.getElementById('answer-name').textContent=currentSong;
+  document.getElementById('answer-name').textContent=currentItem.song;
   document.getElementById('answer-name').style.color=ok?'var(--green)':'#ff6666';
+  document.getElementById('answer-artist-label').textContent=currentItem.artistName;
   document.getElementById('answer-reveal').style.display='block';
   document.getElementById('time-display').style.display='none';
 }
-function scheduleNext(){usedSongs.push(currentSong);round++;setTimeout(nextRound,2200);}
-function updateScoreUI(){document.getElementById('score-ok').textContent=score;document.getElementById('score-ng').textContent=miss;}
+
+function scheduleNext(){ round++; setTimeout(nextRound,2200); }
+function updateScoreUI(){ document.getElementById('score-ok').textContent=score; document.getElementById('score-ng').textContent=miss; }
 function showCombo(n){
   document.getElementById('combo-num').textContent=n+'x';
   const el=document.getElementById('combo-overlay');
-  el.classList.add('show');setTimeout(()=>el.classList.remove('show'),1700);
+  el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1700);
 }
+
+// ══════════════════════════════════════════
+//  ビジュアライザー
+// ══════════════════════════════════════════
 function buildViz(){
-  const v=document.getElementById('visualizer');v.innerHTML='';
+  const v=document.getElementById('visualizer'); v.innerHTML='';
   [18,30,44,36,52,40,26,48,34,22].forEach((h,i)=>{
-    const b=document.createElement('div');b.className='bar';
+    const b=document.createElement('div'); b.className='bar';
     b.style.cssText=`height:${h}px;animation-duration:${0.4+i*0.07}s;animation-delay:${i*0.05}s;`;
     v.appendChild(b);
   });
 }
-function hideViz(){document.getElementById('visualizer').innerHTML='';}
+function hideViz(){ document.getElementById('visualizer').innerHTML=''; }
+
+// ══════════════════════════════════════════
+//  結果
+// ══════════════════════════════════════════
 function showResult(){
   const pct=(score/TOTAL_Q)*100;
-  const rank=pct>=90?'🏆 天才ミスチラー！':pct>=70?'🎸 本物のファン！':pct>=50?'🎵 なかなかやるね！':pct>=30?'😅 もう少し！':'🔰 要特訓！';
+  const rank=pct>=90?'🏆 完璧！':pct>=70?'🎸 すごい！':pct>=50?'🎵 なかなか！':pct>=30?'😅 もう少し！':'🔰 要特訓！';
   document.getElementById('result-score').innerHTML=`${score}<span>/${TOTAL_Q}</span>`;
   document.getElementById('result-rank').textContent=rank;
   document.getElementById('result-detail').textContent=`正解 ${score}問 ／ ミス ${miss}問`;
   showScreen('result');
 }
+
+// ══════════════════════════════════════════
+//  共通
+// ══════════════════════════════════════════
 function showScreen(id){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById('screen-'+id);el.classList.add('active');void el.offsetWidth;
+  const el=document.getElementById('screen-'+id); el.classList.add('active'); void el.offsetWidth;
 }
-function shuffle(a){return [...a].sort(()=>Math.random()-0.5);}
+function shuffle(a){ return [...a].sort(()=>Math.random()-0.5); }
 </script>
 
 </body>
 </html>
+
