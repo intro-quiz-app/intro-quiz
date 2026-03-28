@@ -36,9 +36,10 @@ radial-gradient(ellipse at 85% 20%,rgba(80,80,255,0.07) 0%,transparent 55%);
 #page-title {
 display:block;
 position:relative; z-index:1;
-padding:70px 16px 40px; /* 上部バー分のpadding-top */
+padding:70px 16px 40px;
 min-height:100vh;
 display:flex; align-items:flex-start; justify-content:center;
+background:var(–bg);
 }
 #page-title.hidden { display:none; }
 
@@ -88,9 +89,10 @@ cursor:pointer; font-family:inherit; white-space:nowrap;
 
 /* ─── カード ─── */
 .card {
-background:var(–card); backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-border:1px solid var(–bdr); border-radius:22px; padding:22px 18px;
-box-shadow:0 0 60px rgba(255,50,50,0.07),0 20px 50px rgba(0,0,0,0.6);
+background:rgba(15,15,25,0.95);
+backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
+border:1px solid rgba(255,255,255,0.15); border-radius:22px; padding:22px 18px;
+box-shadow:0 0 60px rgba(255,50,50,0.1),0 20px 50px rgba(0,0,0,0.8);
 width:100%; max-width:430px;
 }
 
@@ -108,17 +110,22 @@ background:rgba(255,200,0,0.07); border:1px solid rgba(255,200,0,0.2); border-ra
 
 /* ─── アーティストグリッド ─── */
 .sec-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.38); margin-bottom:10px; text-transform:uppercase; }
-#artist-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+#artist-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
 .abtn {
-padding:10px 7px; font-size:12px; font-weight:700;
-background:rgba(255,255,255,0.06); color:#fff;
-border:1px solid rgba(255,255,255,0.12); border-radius:12px;
-cursor:pointer; font-family:inherit; text-align:center; line-height:1.4;
+padding:14px 8px; font-size:13px; font-weight:700;
+background:rgba(255,255,255,0.1); color:#fff;
+border:1.5px solid rgba(255,255,255,0.2); border-radius:14px;
+cursor:pointer; font-family:inherit; text-align:center; line-height:1.5;
 transition:all 0.15s;
 }
-.abtn span.icon { font-size:16px; display:block; margin-bottom:3px; }
-.abtn span.sub  { font-size:9px; color:rgba(255,255,255,0.38); display:block; }
-.abtn.on { background:rgba(255,58,58,0.18); border-color:rgba(255,58,58,0.6); box-shadow:0 0 12px rgba(255,58,58,0.2); }
+.abtn span.icon { font-size:20px; display:block; margin-bottom:4px; }
+.abtn span.sub  { font-size:10px; color:rgba(255,255,255,0.5); display:block; margin-top:2px; }
+.abtn.on {
+background:rgba(255,58,58,0.3);
+border-color:rgba(255,58,58,0.8);
+box-shadow:0 0 16px rgba(255,58,58,0.3);
+color:#fff;
+}
 .abtn:active { transform:scale(0.95); }
 
 /* ─── ローディング ─── */
@@ -440,6 +447,7 @@ function showPage(name){
 }
 
 function goTitle(){
+  gameSession++; // ← 最初にセッションを無効化（進行中のsetTimeoutを全部止める）
   stopAudio();
   answered = true; paused = false;
   hideViz();
@@ -458,6 +466,7 @@ function goTitle(){
 //  ゲーム開始
 // ════════════════════════════════════
 function onStart(){
+  gameSession++; // 新しいゲームセッション開始
   unlockAudio();
   score=0; miss=0; combo=0; round=0; usedIdx=[]; noAudioThisSession=[];
   const excluded = loadExcluded();
@@ -532,6 +541,7 @@ async function preloadAndStart(){
 //  ラウンド
 // ════════════════════════════════════
 let score=0, miss=0, combo=0, round=0;
+let gameSession = 0; // セッションID（タイトルに戻るたびに増加）
 
 async function nextRound(){
   stopAudio(); answered=false; paused=false;
@@ -675,7 +685,14 @@ function revealAnswer(ok){
   document.getElementById('time-num').style.display  = 'none';
   document.getElementById('btn-pause').style.display = 'none';
 }
-function scheduleNext(){ round++; setTimeout(nextRound,2200); }
+function scheduleNext(){
+  round++;
+  const mySession = gameSession; // 現在のセッションを記憶
+  setTimeout(()=>{
+    if(gameSession !== mySession) return; // タイトルに戻っていたら無視
+    nextRound();
+  }, 2200);
+}
 function updateScoreUI(){ document.getElementById('g-ok').textContent=score; document.getElementById('g-ng').textContent=miss; }
 function showCombo(n){
   document.getElementById('combo-n').textContent=n+'x';
@@ -730,3 +747,4 @@ updateExcludeBanner();
 
 </body>
 </html>
+a
