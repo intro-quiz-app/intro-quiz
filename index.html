@@ -474,8 +474,22 @@ function showResult(){
   showScreen('result');
 }
 function showScreen(id){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  const el=document.getElementById('screen-'+id); el.classList.add('active'); void el.offsetWidth;
+  if(id==='title'){
+    stopAudio();
+    answered=true;
+    isPaused=false;
+    hideViz();
+  }
+  document.querySelectorAll('.screen').forEach(s=>{
+    s.classList.remove('active');
+    if(['screen-loading','screen-game','screen-result'].includes(s.id)){
+      s.style.display='none';
+    }
+  });
+  const el=document.getElementById('screen-'+id);
+  el.style.display='';
+  el.classList.add('active');
+  void el.offsetWidth;
 }
 function shuffle(a){ return [...a].sort(()=>Math.random()-0.5); }
 </script>
