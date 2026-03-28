@@ -1,12 +1,31 @@
 <!DOCTYPE html>
 
+<!--
+  ╔══════════════════════════════════════════════════════╗
+  ║  イントロクイズ  index.html                          ║
+  ║  VERSION : 1.4.0  (2026-03-28)                      ║
+  ╠══════════════════════════════════════════════════════╣
+  ║  v1.0.0  初版（ミスチル専用、iTunes Preview）        ║
+  ║  v1.1.0  複数アーティスト対応（9組）                 ║
+  ║  v1.2.0  ポーズ機能・スクロール対応                  ║
+  ║  v1.3.0  19アーティスト追加・音源スキップ機能        ║
+  ║  v1.3.1  上部固定バー・localStorage除外リスト        ║
+  ║  v1.3.2  プリロード方式・音源なし曲を自動除外        ║
+  ║  v1.4.0  全曲診断モード追加                         ║
+  ║           ・全190曲の音源URLを一括チェック           ║
+  ║           ・結果をlocalStorageに永続保存             ║
+  ║           ・音源あり曲のみでゲーム起動              ║
+  ║           ・選択に戻るループバグ修正（sessionId）    ║
+  ╚══════════════════════════════════════════════════════╝
+-->
+
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>イントロクイズ</title>
+<title>イントロクイズ v1.4.0</title>
 <style>
 /* ─── リセット ─── */
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
@@ -107,6 +126,35 @@ display:none; font-size:10px; color:#ffd700;
 padding:6px 10px; margin-bottom:10px;
 background:rgba(255,200,0,0.07); border:1px solid rgba(255,200,0,0.2); border-radius:8px;
 }
+
+/* 診断ボタン */
+#btn-diagnose {
+width:100%; padding:12px; font-size:13px; font-weight:700;
+background:rgba(100,200,255,0.08); color:#66ccff;
+border:1px solid rgba(100,200,255,0.25); border-radius:12px;
+cursor:pointer; font-family:inherit; margin-top:12px; transition:all 0.15s;
+}
+#btn-diagnose:active { transform:scale(0.97); }
+#btn-diagnose:disabled { opacity:0.4; cursor:default; }
+
+/* 診断進捗オーバーレイ */
+#page-diagnose {
+display:none; position:fixed; inset:0; z-index:30;
+align-items:center; justify-content:center; padding:16px;
+background:rgba(8,8,15,0.97);
+}
+#page-diagnose.show { display:flex; }
+.diag-card { background:rgba(15,15,25,0.98); border:1px solid rgba(100,200,255,0.2); border-radius:22px; padding:28px 22px; width:100%; max-width:430px; }
+.diag-title { font-size:11px; letter-spacing:4px; color:#66ccff; text-align:center; margin-bottom:6px; }
+.diag-main { font-size:18px; font-weight:800; text-align:center; margin-bottom:4px; }
+.diag-sub { font-size:12px; color:rgba(255,255,255,0.4); text-align:center; margin-bottom:20px; }
+.diag-track { background:rgba(255,255,255,0.07); border-radius:5px; height:6px; margin-bottom:10px; overflow:hidden; }
+.diag-bar { height:100%; width:0%; background:linear-gradient(90deg,#3399ff,#66ccff); border-radius:5px; transition:width 0.2s; }
+.diag-count { font-size:12px; color:rgba(255,255,255,0.45); text-align:center; margin-bottom:18px; }
+.diag-log { font-size:10px; color:rgba(255,255,255,0.3); max-height:120px; overflow-y:auto; line-height:1.8; margin-bottom:18px; padding:8px; background:rgba(0,0,0,0.3); border-radius:8px; }
+.diag-log .ok  { color:#39ff8a; }
+.diag-log .ng  { color:#ff6666; }
+#btn-diag-stop { width:100%; padding:12px; font-size:13px; font-weight:700; background:rgba(255,80,80,0.15); color:#ff6666; border:1px solid rgba(255,80,80,0.3); border-radius:12px; cursor:pointer; font-family:inherit; }
 
 /* ─── アーティストグリッド ─── */
 .sec-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.38); margin-bottom:10px; text-transform:uppercase; }
@@ -240,7 +288,22 @@ transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:cent
     <div id="exclude-banner"></div>
     <div class="sec-label">アーティストを選ぶ（複数OK）</div>
     <div id="artist-grid"></div>
+    <button id="btn-diagnose" onclick="startDiagnose()">🔍 全曲音源チェック（診断モード）</button>
     <div class="footer">♪ iTunes Preview 使用 ／ 著作権は各アーティストに帰属します</div>
+  </div>
+</div>
+
+<!-- ══ 診断オーバーレイ ══ -->
+
+<div id="page-diagnose">
+  <div class="diag-card">
+    <div class="diag-title">DIAGNOSE MODE</div>
+    <div class="diag-main">全曲音源チェック</div>
+    <div class="diag-sub" id="diag-sub">全アーティスト190曲を確認します</div>
+    <div class="diag-track"><div class="diag-bar" id="diag-bar"></div></div>
+    <div class="diag-count" id="diag-count"></div>
+    <div class="diag-log" id="diag-log"></div>
+    <button id="btn-diag-stop" onclick="stopDiagnose()">■ 中断してタイトルへ</button>
   </div>
 </div>
 
@@ -384,8 +447,20 @@ function resetExcluded(){
 function updateExcludeBanner(){
   const n = loadExcluded().length;
   const el = document.getElementById('exclude-banner');
-  if(n > 0){ el.style.display='block'; el.textContent=`⚠ 除外中: ${n}曲（音源なし済み）`; }
-  else{ el.style.display='none'; }
+  let diagInfo = '';
+  try{
+    const d = JSON.parse(localStorage.getItem(LS_DIAG_KEY)||'null');
+    if(d) diagInfo = ` ／ 診断済み ${d.date}（✓${d.okCount}曲）`;
+  }catch{}
+  if(n > 0){
+    el.style.display='block';
+    el.textContent=`⚠ 除外中: ${n}曲（音源なし）${diagInfo}`;
+  } else if(diagInfo){
+    el.style.display='block';
+    el.textContent=`✓ 診断済み${diagInfo}`;
+  } else {
+    el.style.display='none';
+  }
 }
 
 // ════════════════════════════════════
@@ -733,8 +808,82 @@ function showResult(){
 }
 
 // ════════════════════════════════════
-//  初期化
+//  診断モード
 // ════════════════════════════════════
+const LS_DIAG_KEY = 'iq_diag_v1'; // { checked: true, excluded: [...], okCount, ngCount, date }
+let diagRunning = false;
+let diagSession = 0;
+
+function startDiagnose(){
+  diagRunning = true;
+  diagSession++;
+  const mySession = diagSession;
+
+  document.getElementById('page-diagnose').classList.add('show');
+  document.getElementById('diag-bar').style.width = '0%';
+  document.getElementById('diag-log').innerHTML = '';
+  document.getElementById('diag-count').textContent = '';
+
+  const allItems = [];
+  Object.entries(LIBRARY).forEach(([key, a])=>{
+    a.songs.forEach(song=>{
+      allItems.push({ id: key+'__'+song, song, artistName: a.name, search: a.search });
+    });
+  });
+
+  const total = allItems.length;
+  let done = 0, okCount = 0, ngCount = 0;
+  const excluded = [];
+
+  document.getElementById('diag-sub').textContent = `全${total}曲を確認中...`;
+
+  const BATCH = 3;
+  (async ()=>{
+    for(let i=0; i<allItems.length; i+=BATCH){
+      if(diagSession !== mySession) return; // 中断された
+      const batch = allItems.slice(i, i+BATCH);
+      await Promise.all(batch.map(async item=>{
+        let url = await fetchPreview(item.search, item.song);
+        if(!url) url = await fetchPreview(item.artistName, item.song);
+        done++;
+        if(url){ okCount++; }
+        else { ngCount++; excluded.push(item.id); }
+
+        // ログ追加
+        const log = document.getElementById('diag-log');
+        const line = document.createElement('div');
+        line.className = url ? 'ok' : 'ng';
+        line.textContent = `${url?'✓':'✗'} ${item.artistName} — ${item.song}`;
+        log.appendChild(line);
+        log.scrollTop = log.scrollHeight;
+
+        const pct = Math.round(done/total*100);
+        document.getElementById('diag-bar').style.width = pct+'%';
+        document.getElementById('diag-count').textContent =
+          `${done} / ${total}曲  ✓${okCount}件  ✗${ngCount}件`;
+      }));
+    }
+
+    if(diagSession !== mySession) return;
+
+    // 保存
+    saveExcluded(excluded);
+    const result = { checked:true, okCount, ngCount, total, date: new Date().toLocaleDateString('ja-JP') };
+    try{ localStorage.setItem(LS_DIAG_KEY, JSON.stringify(result)); }catch{}
+
+    document.getElementById('diag-sub').textContent = `完了！ 音源あり:${okCount}曲 / なし:${ngCount}曲`;
+    document.getElementById('btn-diag-stop').textContent = '✓ 完了 — タイトルへ戻る';
+    diagRunning = false;
+    updateExcludeBanner();
+  })();
+}
+
+function stopDiagnose(){
+  diagSession++; // 実行中の診断を停止
+  diagRunning = false;
+  document.getElementById('page-diagnose').classList.remove('show');
+  updateExcludeBanner();
+}
 function shuffle(a){ return [...a].sort(()=>Math.random()-0.5); }
 // 起動時：選択状態クリア・スタート無効
 selectedArtists = [];
@@ -747,4 +896,3 @@ updateExcludeBanner();
 
 </body>
 </html>
-a
