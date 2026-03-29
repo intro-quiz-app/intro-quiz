@@ -3,7 +3,7 @@
 <!--
   ╔══════════════════════════════════════════════════════╗
   ║  イントロクイズ  index.html                          ║
-  ║  VERSION : 1.5.1  (2026-03-29)                      ║
+  ║  VERSION : 1.5.2  (2026-03-29)                      ║
   ╠══════════════════════════════════════════════════════╣
   ║  v1.0.0  初版（ミスチル専用、iTunes Preview）        ║
   ║  v1.1.0  複数アーティスト対応（9組）                 ║
@@ -16,9 +16,8 @@
   ║           ・フェッチ間隔テスト機能追加               ║
   ║             （1秒/2秒/3秒で取得率を比較）            ║
   ║           ・取得結果をリアルタイム記録・表示          ║
-  ║  v1.5.1  ボタン二重登録バグ修正                     ║
-  ║           ・onclick属性をHTML側から全て削除          ║
-  ║           ・イベント登録をJS側に統一                 ║
+  ║  v1.5.1  ボタン二重登録バグ修正・audio要素復活       ║
+  ║  v1.5.2  結果画面に10曲正誤リストを追加             ║
   ╚══════════════════════════════════════════════════════╝
 -->
 
@@ -27,7 +26,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>イントロクイズ v1.5.1</title>
+<title>イントロクイズ v1.5.2</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
@@ -220,7 +219,7 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
   <div class="card">
     <div class="ttl">INTRO QUIZ</div>
     <div class="ttl-big">イントロクイズ</div>
-    <div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.28);margin-bottom:6px;letter-spacing:1px;">v1.5.1 — 取得間隔テスト版</div>
+    <div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.28);margin-bottom:6px;letter-spacing:1px;">v1.5.2 — 取得間隔テスト版</div>
     <div class="ttl-sub">J-POP 早押し 4択</div>
 
 ```
@@ -292,14 +291,24 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
     <div class="rs" id="rs">0<span>/10</span></div>
     <div class="rr" id="rr"></div>
     <div class="rd" id="rd"></div>
-    <div id="fetch-report">
-      <div class="rt">FETCH REPORT</div>
-      <div id="report-body"></div>
-    </div>
-    <div class="rbtns">
-      <button class="btn-retry" id="btn-retry">もう一度</button>
-      <button class="btn-back"  id="btn-back">選択に戻る</button>
-    </div>
+
+```
+<!-- 10曲の正誤リスト -->
+<div id="quiz-list" style="margin-bottom:14px;background:rgba(0,0,0,0.3);border:1px solid rgba(255,255,255,0.1);border-radius:12px;padding:10px 12px;">
+  <div style="font-size:10px;letter-spacing:3px;color:rgba(255,255,255,0.4);margin-bottom:8px;">QUIZ LOG</div>
+  <div id="quiz-list-body" style="font-size:12px;line-height:2.2;"></div>
+</div>
+
+<div id="fetch-report">
+  <div class="rt">FETCH REPORT</div>
+  <div id="report-body"></div>
+</div>
+<div class="rbtns">
+  <button class="btn-retry" id="btn-retry">もう一度</button>
+  <button class="btn-back"  id="btn-back">選択に戻る</button>
+</div>
+```
+
   </div>
 </div>
 
@@ -366,7 +375,8 @@ let pool = [], usedIdx = [], cur = null, choices = [];
 let timerInt = null, elapsed = 0, answered = false, paused = false, audioOk = false;
 let score = 0, miss = 0, combo = 0, round = 0;
 let gameSession = 0;
-let fetchDelay = 1000; // デフォルト1秒
+let fetchDelay = 1000;
+let quizHistory = []; // 各問題の記録 {song, artist, ok}
 
 // 取得率ログ（このセッション）
 let fetchLog = { ok:0, ng:0, total:0, details:[] };
@@ -446,6 +456,7 @@ function onStart(){
   unlockAudio();
   score=0; miss=0; combo=0; round=0; usedIdx=[];
   fetchLog = { ok:0, ng:0, total:0, details:[] };
+  quizHistory = [];
   const keys = isRandom ? Object.keys(LIBRARY) : selArtists;
   pool = [];
   keys.forEach(key=>{
@@ -609,6 +620,7 @@ function updateBar(pct){
 function timeUp(){
   if(answered)return;
   answered=true; miss++; combo=0; stopAudio(); hideViz(); updateScoreUI();
+  quizHistory.push({ song:cur.song, artist:cur.artistName, ok:false });
   revealAnswer(false);
   scheduleNext();
 }
@@ -647,6 +659,7 @@ function handleAnswer(song,btn){
     else b.classList.add('dim');
   });
   if(ok){score++;combo++;if(combo>=2)showCombo(combo);}else{miss++;combo=0;}
+  quizHistory.push({ song:cur.song, artist:cur.artistName, ok });
   updateScoreUI(); revealAnswer(ok); scheduleNext();
 }
 function revealAnswer(ok){
@@ -690,7 +703,16 @@ function showResult(){
   document.getElementById('rr').textContent=rank;
   document.getElementById('rd').textContent=`正解 ${score}問 ／ ミス ${miss}問`;
 
-  // フェッチレポート
+  // 10曲リスト
+  const listEl = document.getElementById('quiz-list-body');
+  listEl.innerHTML = quizHistory.map((q,i)=>
+    `<div style="display:flex;align-items:baseline;gap:6px;">
+      <span style="color:${q.ok?'var(--green)':'#ff6666'};font-size:14px;">${q.ok?'✓':'✗'}</span>
+      <span style="color:rgba(255,255,255,0.4);font-size:10px;min-width:18px;">${i+1}.</span>
+      <span style="flex:1;color:${q.ok?'#fff':'rgba(255,255,255,0.6)'};">${q.song}</span>
+      <span style="font-size:10px;color:rgba(255,255,255,0.28);">${q.artist}</span>
+    </div>`
+  ).join('');
   const okPct = fetchLog.total ? Math.round(fetchLog.ok/fetchLog.total*100) : 0;
   let rep = `間隔: <b>${fetchDelay/1000}秒</b><br>`;
   rep += `取得成功: <b style="color:#39ff8a">${fetchLog.ok}曲</b> ／ 失敗: <b style="color:#ff6666">${fetchLog.ng}曲</b><br>`;
