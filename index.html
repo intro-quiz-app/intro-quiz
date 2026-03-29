@@ -3,7 +3,7 @@
 <!--
   ╔══════════════════════════════════════════════════════╗
   ║  イントロクイズ  index.html                          ║
-  ║  VERSION : 1.4.0  (2026-03-28)                      ║
+  ║  VERSION : 1.5.0  (2026-03-29)                      ║
   ╠══════════════════════════════════════════════════════╣
   ║  v1.0.0  初版（ミスチル専用、iTunes Preview）        ║
   ║  v1.1.0  複数アーティスト対応（9組）                 ║
@@ -11,11 +11,11 @@
   ║  v1.3.0  19アーティスト追加・音源スキップ機能        ║
   ║  v1.3.1  上部固定バー・localStorage除外リスト        ║
   ║  v1.3.2  プリロード方式・音源なし曲を自動除外        ║
-  ║  v1.4.0  全曲診断モード追加                         ║
-  ║           ・全190曲の音源URLを一括チェック           ║
-  ║           ・結果をlocalStorageに永続保存             ║
-  ║           ・音源あり曲のみでゲーム起動              ║
-  ║           ・選択に戻るループバグ修正（sessionId）    ║
+  ║  v1.4.0  全曲診断モード追加・ループバグ修正          ║
+  ║  v1.5.0  コードをシンプル化                         ║
+  ║           ・フェッチ間隔テスト機能追加               ║
+  ║             （1秒/2秒/3秒で取得率を比較）            ║
+  ║           ・取得結果をリアルタイム記録・表示          ║
   ╚══════════════════════════════════════════════════════╝
 -->
 
@@ -24,199 +24,130 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>イントロクイズ v1.4.0</title>
+<title>イントロクイズ v1.5.0</title>
 <style>
-/* ─── リセット ─── */
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
-  --red:#ff3a3a; --redg:rgba(255,58,58,0.4);
+  --red:#ff3a3a; --redg:rgba(255,58,58,0.35);
   --green:#39ff8a; --bg:#08080f;
-  --card:rgba(255,255,255,0.05); --bdr:rgba(255,255,255,0.1);
 }
-
-/* ─── body ─── */
 body {
-background:var(–bg);
-font-family:‘Hiragino Kaku Gothic ProN’,‘Yu Gothic’,sans-serif;
-color:#fff; min-height:100vh;
+  background:var(--bg); font-family:'Hiragino Kaku Gothic ProN','Yu Gothic',sans-serif;
+  color:#fff; min-height:100vh;
 }
 
-/* ─── 背景 ─── */
-.bg-glow {
-position:fixed; inset:0; z-index:0; pointer-events:none;
-background:
-radial-gradient(ellipse at 15% 50%,rgba(255,50,50,0.08) 0%,transparent 55%),
-radial-gradient(ellipse at 85% 20%,rgba(80,80,255,0.07) 0%,transparent 55%);
-}
-
-/* ─── 画面管理 ─── */
-/* タイトル画面：スクロール可能なページ */
-#page-title {
-display:block;
-position:relative; z-index:1;
-padding:70px 16px 40px;
-min-height:100vh;
-display:flex; align-items:flex-start; justify-content:center;
-background:var(–bg);
-}
-#page-title.hidden { display:none; }
-
-/* ゲーム系画面：全画面固定オーバーレイ */
-.overlay {
-display:none;
-position:fixed; inset:0; z-index:10;
-align-items:center; justify-content:center;
-padding:16px;
-background:var(–bg);
-}
-.overlay.show { display:flex; }
-
-/* ─── 上部固定バー（タイトル画面専用） ─── */
+/* ── 上部バー ── */
 #top-bar {
-position:fixed; top:0; left:0; right:0; z-index:20;
+position:fixed; top:0; left:0; right:0; z-index:50;
 padding:10px 14px;
-background:rgba(8,8,15,0.95);
-backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px);
-border-bottom:1px solid rgba(255,255,255,0.08);
-box-shadow:0 2px 16px rgba(0,0,0,0.6);
+background:rgba(8,8,15,0.96);
+border-bottom:1px solid rgba(255,255,255,0.1);
 }
-#top-bar-inner { display:flex; gap:8px; max-width:430px; margin:0 auto; }
+#top-inner { display:flex; gap:8px; max-width:430px; margin:0 auto; }
 #btn-random {
 flex:1; padding:11px 6px; font-size:12px; font-weight:700;
 background:rgba(255,200,0,0.08); color:#ffd700;
 border:1px solid rgba(255,200,0,0.25); border-radius:10px;
-cursor:pointer; font-family:inherit; transition:all 0.15s;
+cursor:pointer; font-family:inherit;
 }
-#btn-random.on { background:rgba(255,200,0,0.22); border-color:#ffd700; box-shadow:0 0 12px rgba(255,200,0,0.3); }
+#btn-random.on { background:rgba(255,200,0,0.22); border-color:#ffd700; }
 #btn-random:active { transform:scale(0.96); }
 #btn-start {
-flex:1.2; padding:11px 6px; font-size:14px; font-weight:800;
+flex:1.3; padding:11px 6px; font-size:14px; font-weight:800;
 background:linear-gradient(135deg,#ff4040,#e02020); color:#fff; border:none;
-border-radius:10px; cursor:pointer; letter-spacing:1px;
-box-shadow:0 0 20px var(–redg); font-family:inherit; transition:transform 0.1s;
+border-radius:10px; cursor:pointer; letter-spacing:1px; font-family:inherit;
+box-shadow:0 0 18px var(–redg);
 }
 #btn-start:active { transform:scale(0.96); }
-#btn-start:disabled { opacity:0.38; cursor:default; box-shadow:none; background:#444; }
-#btn-reset {
-padding:11px 10px; font-size:11px; font-weight:600;
-background:rgba(255,255,255,0.06); color:rgba(255,255,255,0.45);
-border:1px solid rgba(255,255,255,0.12); border-radius:10px;
-cursor:pointer; font-family:inherit; white-space:nowrap;
-}
-#btn-reset:active { transform:scale(0.96); }
+#btn-start:disabled { opacity:0.35; cursor:default; box-shadow:none; background:#444; }
 
-/* ─── カード ─── */
+/* ── 画面 ── */
+.page { display:none; position:fixed; inset:0; z-index:10; align-items:center; justify-content:center; padding:16px; background:var(–bg); }
+.page.show { display:flex; }
+#page-title { display:flex; position:relative; z-index:1; flex-direction:column; align-items:center; padding:74px 16px 40px; min-height:100vh; background:var(–bg); overflow-y:auto; }
+
+/* ── カード ── */
 .card {
-background:rgba(15,15,25,0.95);
-backdrop-filter:blur(24px); -webkit-backdrop-filter:blur(24px);
-border:1px solid rgba(255,255,255,0.15); border-radius:22px; padding:22px 18px;
-box-shadow:0 0 60px rgba(255,50,50,0.1),0 20px 50px rgba(0,0,0,0.8);
+background:rgba(15,15,25,0.96);
+border:1px solid rgba(255,255,255,0.15); border-radius:20px; padding:22px 18px;
 width:100%; max-width:430px;
+box-shadow:0 20px 50px rgba(0,0,0,0.7);
 }
 
-/* ─── タイトル ─── */
-.ttl-label { font-size:10px; letter-spacing:5px; color:var(–red); text-transform:uppercase; text-align:center; margin-bottom:10px; }
-.ttl-main  { font-size:30px; font-weight:900; text-align:center; letter-spacing:-1px; line-height:1.1; margin-bottom:3px; }
-.ttl-sub   { font-size:11px; color:rgba(255,255,255,0.3); text-align:center; letter-spacing:2px; margin-bottom:18px; }
+/* ── タイトル ── */
+.ttl { font-size:10px; letter-spacing:5px; color:var(–red); text-transform:uppercase; text-align:center; margin-bottom:10px; }
+.ttl-big { font-size:30px; font-weight:900; text-align:center; margin-bottom:3px; }
+.ttl-sub { font-size:11px; color:rgba(255,255,255,0.3); text-align:center; letter-spacing:2px; margin-bottom:18px; }
+.sec { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.38); margin-bottom:10px; text-transform:uppercase; }
 
-/* 除外中バナー */
-#exclude-banner {
-display:none; font-size:10px; color:#ffd700;
-padding:6px 10px; margin-bottom:10px;
-background:rgba(255,200,0,0.07); border:1px solid rgba(255,200,0,0.2); border-radius:8px;
-}
-
-/* 診断ボタン */
-#btn-diagnose {
-width:100%; padding:12px; font-size:13px; font-weight:700;
-background:rgba(100,200,255,0.08); color:#66ccff;
-border:1px solid rgba(100,200,255,0.25); border-radius:12px;
-cursor:pointer; font-family:inherit; margin-top:12px; transition:all 0.15s;
-}
-#btn-diagnose:active { transform:scale(0.97); }
-#btn-diagnose:disabled { opacity:0.4; cursor:default; }
-
-/* 診断進捗オーバーレイ */
-#page-diagnose {
-display:none; position:fixed; inset:0; z-index:30;
-align-items:center; justify-content:center; padding:16px;
-background:rgba(8,8,15,0.97);
-}
-#page-diagnose.show { display:flex; }
-.diag-card { background:rgba(15,15,25,0.98); border:1px solid rgba(100,200,255,0.2); border-radius:22px; padding:28px 22px; width:100%; max-width:430px; }
-.diag-title { font-size:11px; letter-spacing:4px; color:#66ccff; text-align:center; margin-bottom:6px; }
-.diag-main { font-size:18px; font-weight:800; text-align:center; margin-bottom:4px; }
-.diag-sub { font-size:12px; color:rgba(255,255,255,0.4); text-align:center; margin-bottom:20px; }
-.diag-track { background:rgba(255,255,255,0.07); border-radius:5px; height:6px; margin-bottom:10px; overflow:hidden; }
-.diag-bar { height:100%; width:0%; background:linear-gradient(90deg,#3399ff,#66ccff); border-radius:5px; transition:width 0.2s; }
-.diag-count { font-size:12px; color:rgba(255,255,255,0.45); text-align:center; margin-bottom:18px; }
-.diag-log { font-size:10px; color:rgba(255,255,255,0.3); max-height:120px; overflow-y:auto; line-height:1.8; margin-bottom:18px; padding:8px; background:rgba(0,0,0,0.3); border-radius:8px; }
-.diag-log .ok  { color:#39ff8a; }
-.diag-log .ng  { color:#ff6666; }
-#btn-diag-stop { width:100%; padding:12px; font-size:13px; font-weight:700; background:rgba(255,80,80,0.15); color:#ff6666; border:1px solid rgba(255,80,80,0.3); border-radius:12px; cursor:pointer; font-family:inherit; }
-
-/* ─── アーティストグリッド ─── */
-.sec-label { font-size:10px; letter-spacing:3px; color:rgba(255,255,255,0.38); margin-bottom:10px; text-transform:uppercase; }
-#artist-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+/* ── アーティストボタン ── */
+#grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px; }
 .abtn {
 padding:14px 8px; font-size:13px; font-weight:700;
 background:rgba(255,255,255,0.1); color:#fff;
 border:1.5px solid rgba(255,255,255,0.2); border-radius:14px;
 cursor:pointer; font-family:inherit; text-align:center; line-height:1.5;
-transition:all 0.15s;
 }
-.abtn span.icon { font-size:20px; display:block; margin-bottom:4px; }
-.abtn span.sub  { font-size:10px; color:rgba(255,255,255,0.5); display:block; margin-top:2px; }
-.abtn.on {
-background:rgba(255,58,58,0.3);
-border-color:rgba(255,58,58,0.8);
-box-shadow:0 0 16px rgba(255,58,58,0.3);
-color:#fff;
-}
+.abtn .ic { font-size:20px; display:block; margin-bottom:4px; }
+.abtn .sb { font-size:10px; color:rgba(255,255,255,0.45); display:block; margin-top:2px; }
+.abtn.on { background:rgba(255,58,58,0.28); border-color:rgba(255,58,58,0.75); box-shadow:0 0 14px rgba(255,58,58,0.25); }
 .abtn:active { transform:scale(0.95); }
 
-/* ─── ローディング ─── */
+/* ── 間隔設定 ── */
+.interval-row { display:flex; gap:6px; margin-bottom:12px; align-items:center; }
+.interval-label { font-size:11px; color:rgba(255,255,255,0.45); white-space:nowrap; }
+.ibtn {
+flex:1; padding:8px 4px; font-size:12px; font-weight:700;
+background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.6);
+border:1px solid rgba(255,255,255,0.15); border-radius:8px;
+cursor:pointer; font-family:inherit;
+}
+.ibtn.on { background:rgba(100,200,255,0.18); border-color:#66ccff; color:#66ccff; }
+.ibtn:active { transform:scale(0.96); }
+
+/* 取得率パネル */
+#stat-panel {
+margin-top:10px; padding:12px 14px;
+background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:12px;
+font-size:11px; line-height:2; color:rgba(255,255,255,0.5);
+}
+#stat-panel .st { color:#fff; font-weight:700; }
+
+/* ── ローディング ── */
 .ld-icon { font-size:32px; text-align:center; margin-bottom:14px; animation:spin 1s linear infinite; }
 @keyframes spin { to{transform:rotate(360deg)} }
-.ld-text { font-size:14px; color:rgba(255,255,255,0.5); text-align:center; }
-.ld-sub  { font-size:11px; color:rgba(255,255,255,0.28); text-align:center; margin-top:6px; }
-#preload-track { background:rgba(255,255,255,0.07); border-radius:5px; height:4px; margin-top:16px; overflow:hidden; }
-#preload-bar { height:100%; width:0%; background:var(–red); border-radius:5px; transition:width 0.3s; }
-#preload-count { font-size:10px; color:rgba(255,255,255,0.3); text-align:center; margin-top:8px; }
+.ld-txt { font-size:14px; color:rgba(255,255,255,0.5); text-align:center; }
+.ld-sub { font-size:11px; color:rgba(255,255,255,0.28); text-align:center; margin-top:8px; }
 
-/* ─── ゲーム ─── */
-.g-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
-.g-round  { font-size:11px; color:rgba(255,255,255,0.38); }
-.g-score  { display:flex; gap:12px; font-size:12px; }
-.g-ok  { color:var(–green); }
-.g-ng  { color:#ff6666; }
+/* ── ゲーム ── */
+.gh { display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; }
+.g-round { font-size:11px; color:rgba(255,255,255,0.38); }
+.g-score { display:flex; gap:12px; font-size:12px; }
+.ok { color:var(–green); } .ng { color:#ff6666; }
 
-.timer-track { background:rgba(255,255,255,0.07); border-radius:5px; height:5px; margin-bottom:16px; overflow:hidden; }
-#timer-bar { height:100%; width:100%; border-radius:5px; background:var(–red); transition:width 0.15s linear,background 0.5s; }
+.ttrack { background:rgba(255,255,255,0.07); border-radius:5px; height:5px; margin-bottom:16px; overflow:hidden; }
+#tbar { height:100%; width:100%; border-radius:5px; background:var(–red); transition:width 0.15s linear,background 0.5s; }
 
 .viz { display:flex; justify-content:center; align-items:flex-end; gap:4px; height:44px; margin-bottom:4px; }
-.vbar { width:5px; border-radius:3px; background:linear-gradient(to top,var(–red),#ff8080); animation:wave 0s ease-in-out infinite alternate; }
+.vb { width:5px; border-radius:3px; background:linear-gradient(to top,var(–red),#ff8080); animation:wave 0s ease-in-out infinite alternate; }
 @keyframes wave { from{transform:scaleY(0.25)} to{transform:scaleY(1)} }
 
-#time-num { font-size:28px; font-weight:900; text-align:center; margin-bottom:10px; font-variant-numeric:tabular-nums; transition:color 0.4s; text-shadow:0 0 18px currentColor; }
+#tnum { font-size:28px; font-weight:900; text-align:center; margin-bottom:10px; font-variant-numeric:tabular-nums; transition:color 0.4s; text-shadow:0 0 18px currentColor; }
 
-.pause-row { display:flex; justify-content:center; margin-bottom:12px; }
+.prow { display:flex; justify-content:center; margin-bottom:12px; }
 #btn-pause {
 padding:7px 22px; font-size:12px; font-weight:700;
 background:rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);
 border:1px solid rgba(255,255,255,0.18); border-radius:20px;
-cursor:pointer; font-family:inherit; letter-spacing:1px;
+cursor:pointer; font-family:inherit;
 }
 #btn-pause.paused { background:rgba(255,200,0,0.15); border-color:rgba(255,200,0,0.5); color:#ffd700; }
-#btn-pause:active { transform:scale(0.95); }
 
-.ans-reveal { text-align:center; margin-bottom:12px; animation:fadeUp 0.3s ease; }
-.ans-emoji  { font-size:34px; margin-bottom:6px; }
-.ans-label  { font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:3px; }
-.ans-name   { font-size:16px; font-weight:700; }
-.ans-artist { font-size:10px; color:rgba(255,255,255,0.35); margin-top:2px; }
-@keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+.arev { text-align:center; margin-bottom:12px; }
+.ae { font-size:34px; margin-bottom:6px; }
+.al { font-size:10px; color:rgba(255,255,255,0.4); margin-bottom:3px; }
+.an { font-size:16px; font-weight:700; }
+.aa { font-size:10px; color:rgba(255,255,255,0.35); margin-top:2px; }
 
 .choices { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
 .cbtn {
@@ -225,159 +156,155 @@ background:rgba(255,255,255,0.07); color:#fff;
 border:1px solid rgba(255,255,255,0.13); border-radius:12px; cursor:pointer;
 font-family:inherit; line-height:1.4; min-height:54px;
 display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px;
-transition:transform 0.1s,background 0.2s; word-break:break-all; text-align:center;
+word-break:break-all; text-align:center;
 }
-.cbtn .ol { font-size:9px; color:rgba(255,255,255,0.32); font-weight:500; }
+.cbtn .ol { font-size:9px; color:rgba(255,255,255,0.32); }
 .cbtn:active:not(:disabled) { transform:scale(0.95); }
 .cbtn:disabled { cursor:default; }
-.cbtn.correct { background:rgba(57,255,138,0.15); border-color:rgba(57,255,138,0.5); color:var(–green); box-shadow:0 0 14px rgba(57,255,138,0.2); animation:popIn 0.3s ease; }
-.cbtn.wrong   { background:rgba(255,60,60,0.15); border-color:rgba(255,60,60,0.5); color:#ff6666; animation:shake 0.3s ease; }
+.cbtn.correct { background:rgba(57,255,138,0.15); border-color:rgba(57,255,138,0.5); color:var(–green); }
+.cbtn.wrong   { background:rgba(255,60,60,0.15); border-color:rgba(255,60,60,0.5); color:#ff6666; }
 .cbtn.dim     { opacity:0.25; }
-@keyframes popIn { 0%{transform:scale(1)} 40%{transform:scale(1.06)} 100%{transform:scale(1)} }
-@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-6px)} 40%{transform:translateX(6px)} 60%{transform:translateX(-4px)} 80%{transform:translateX(3px)} }
 
-/* ─── コンボ ─── */
+/* ── コンボ ── */
 #combo-ov { display:none; position:fixed; inset:0; z-index:50; pointer-events:none; align-items:center; justify-content:center; }
 #combo-ov.show { display:flex; }
-.combo-badge { background:rgba(0,0,0,0.9); border:2px solid var(–red); border-radius:16px; padding:14px 28px; text-align:center; box-shadow:0 0 36px var(–redg); animation:comboPop 1.6s ease forwards; }
-.combo-t { font-size:10px; letter-spacing:4px; color:var(–red); margin-bottom:3px; }
-.combo-n { font-size:44px; font-weight:900; color:var(–red); line-height:1; }
-@keyframes comboPop { 0%{opacity:0;transform:scale(0.4)} 25%{opacity:1;transform:scale(1.1)} 50%{transform:scale(1)} 75%{opacity:1} 100%{opacity:0;transform:scale(0.9)} }
+.cbadge { background:rgba(0,0,0,0.9); border:2px solid var(–red); border-radius:16px; padding:14px 28px; text-align:center; box-shadow:0 0 36px var(–redg); animation:cpop 1.6s ease forwards; }
+.ct { font-size:10px; letter-spacing:4px; color:var(–red); margin-bottom:3px; }
+.cn { font-size:44px; font-weight:900; color:var(–red); line-height:1; }
+@keyframes cpop { 0%{opacity:0;transform:scale(0.4)} 25%{opacity:1;transform:scale(1.1)} 50%{transform:scale(1)} 75%{opacity:1} 100%{opacity:0;transform:scale(0.9)} }
 
-/* ─── 結果 ─── */
-.res-label  { font-size:10px; letter-spacing:5px; color:var(–red); text-align:center; margin-bottom:14px; }
-.res-score  { font-size:64px; font-weight:900; text-align:center; line-height:1; margin-bottom:4px; }
-.res-score span { font-size:18px; color:rgba(255,255,255,0.4); }
-.res-rank   { font-size:18px; text-align:center; margin-bottom:6px; }
-.res-detail { font-size:11px; color:rgba(255,255,255,0.35); text-align:center; margin-bottom:18px; }
-#no-audio-box { display:none; margin-bottom:16px; padding:12px 14px; background:rgba(255,200,0,0.07); border:1px solid rgba(255,200,0,0.22); border-radius:12px; }
-#no-audio-box .nab-title { font-size:10px; color:#ffd700; letter-spacing:2px; margin-bottom:8px; }
-#no-audio-list { font-size:11px; color:rgba(255,255,255,0.5); line-height:1.9; }
-.res-btns { display:flex; gap:10px; }
+/* ── 結果 ── */
+.rl { font-size:10px; letter-spacing:5px; color:var(–red); text-align:center; margin-bottom:14px; }
+.rs { font-size:64px; font-weight:900; text-align:center; line-height:1; margin-bottom:4px; }
+.rs span { font-size:18px; color:rgba(255,255,255,0.4); }
+.rr { font-size:18px; text-align:center; margin-bottom:6px; }
+.rd { font-size:11px; color:rgba(255,255,255,0.35); text-align:center; margin-bottom:16px; }
+
+/* 結果内取得率レポート */
+#fetch-report {
+padding:12px 14px; margin-bottom:16px;
+background:rgba(100,200,255,0.07); border:1px solid rgba(100,200,255,0.2); border-radius:12px;
+font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
+}
+#fetch-report .rt { font-size:10px; letter-spacing:3px; color:#66ccff; margin-bottom:6px; }
+
+.rbtns { display:flex; gap:10px; }
 .btn-retry { flex:1; padding:14px; font-size:14px; font-weight:800; background:linear-gradient(135deg,#ff4040,#e02020); color:#fff; border:none; border-radius:12px; cursor:pointer; font-family:inherit; }
-.btn-retry:active { transform:scale(0.96); }
-.btn-back { flex:1; padding:14px; font-size:13px; font-weight:600; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.65); border:1px solid rgba(255,255,255,0.15); border-radius:12px; cursor:pointer; font-family:inherit; }
-.btn-back:active { transform:scale(0.96); }
+.btn-back  { flex:1; padding:14px; font-size:13px; font-weight:600; background:rgba(255,255,255,0.07); color:rgba(255,255,255,0.65); border:1px solid rgba(255,255,255,0.15); border-radius:12px; cursor:pointer; font-family:inherit; }
 
-/* ─── フッター ─── */
-.footer { position:relative; z-index:1; padding:10px 0 4px; font-size:9px; color:rgba(255,255,255,0.15); text-align:center; }
+.footer { padding:10px 0 4px; font-size:9px; color:rgba(255,255,255,0.15); text-align:center; }
 </style>
 
 </head>
 <body>
-<div class="bg-glow"></div>
-<audio id="audio" playsinline webkit-playsinline preload="none"></audio>
 
-<!-- ══ 上部固定バー ══ -->
+<!-- ── 上部バー ── -->
 
 <div id="top-bar">
-  <div id="top-bar-inner">
+  <div id="top-inner">
     <button id="btn-random" onclick="toggleRandom()">🎲 ランダム</button>
-    <button id="btn-start" disabled onclick="onStart()">▶ スタート</button>
-    <button id="btn-reset" onclick="resetExcluded()">🗑 リセット</button>
+    <button id="btn-start"  disabled onclick="onStart()">▶ スタート</button>
   </div>
 </div>
 
-<!-- ══ タイトル画面（スクロール可） ══ -->
+<!-- ── タイトル画面 ── -->
 
 <div id="page-title">
   <div class="card">
-    <div class="ttl-label">INTRO QUIZ</div>
-    <div class="ttl-main">イントロクイズ</div>
+    <div class="ttl">INTRO QUIZ</div>
+    <div class="ttl-big">イントロクイズ</div>
     <div class="ttl-sub">J-POP 早押し 4択</div>
-    <div id="exclude-banner"></div>
-    <div class="sec-label">アーティストを選ぶ（複数OK）</div>
-    <div id="artist-grid"></div>
-    <button id="btn-diagnose" onclick="startDiagnose()">🔍 全曲音源チェック（診断モード）</button>
-    <div class="footer">♪ iTunes Preview 使用 ／ 著作権は各アーティストに帰属します</div>
+
+```
+<div class="sec">アーティストを選ぶ（複数OK）</div>
+<div id="grid"></div>
+
+<!-- 間隔テスト設定 -->
+<div class="interval-row">
+  <span class="interval-label">⏱ 取得間隔</span>
+  <button class="ibtn on" data-sec="1" onclick="setInterval_(1)">1秒</button>
+  <button class="ibtn"    data-sec="2" onclick="setInterval_(2)">2秒</button>
+  <button class="ibtn"    data-sec="3" onclick="setInterval_(3)">3秒</button>
+</div>
+
+<!-- 取得率パネル -->
+<div id="stat-panel">
+  📊 取得率ログ（ゲーム中に記録されます）<br>
+  <span id="stat-body">まだデータがありません</span>
+</div>
+
+<div class="footer">♪ iTunes Preview 使用 ／ 著作権は各アーティストに帰属します</div>
+```
+
   </div>
 </div>
 
-<!-- ══ 診断オーバーレイ ══ -->
+<!-- ── ローディング ── -->
 
-<div id="page-diagnose">
-  <div class="diag-card">
-    <div class="diag-title">DIAGNOSE MODE</div>
-    <div class="diag-main">全曲音源チェック</div>
-    <div class="diag-sub" id="diag-sub">全アーティスト190曲を確認します</div>
-    <div class="diag-track"><div class="diag-bar" id="diag-bar"></div></div>
-    <div class="diag-count" id="diag-count"></div>
-    <div class="diag-log" id="diag-log"></div>
-    <button id="btn-diag-stop" onclick="stopDiagnose()">■ 中断してタイトルへ</button>
-  </div>
-</div>
-
-<!-- ══ ローディング画面 ══ -->
-
-<div id="page-loading" class="overlay">
+<div id="page-loading" class="page">
   <div class="card" style="text-align:center;padding:40px 20px;">
     <div class="ld-icon">🎵</div>
-    <div class="ld-text" id="ld-text">音源を確認中...</div>
+    <div class="ld-txt">音源を取得中...</div>
     <div class="ld-sub" id="ld-sub"></div>
-    <div id="preload-track"><div id="preload-bar"></div></div>
-    <div id="preload-count"></div>
   </div>
 </div>
 
-<!-- ══ ゲーム画面 ══ -->
+<!-- ── ゲーム ── -->
 
-<div id="page-game" class="overlay">
+<div id="page-game" class="page">
   <div class="card">
-    <div class="g-header">
+    <div class="gh">
       <div class="g-round" id="g-round">1 / 10問</div>
       <div class="g-score">
-        <span class="g-ok">✓ <span id="g-ok">0</span></span>
-        <span class="g-ng">✗ <span id="g-ng">0</span></span>
+        <span class="ok">✓ <span id="g-ok">0</span></span>
+        <span class="ng">✗ <span id="g-ng">0</span></span>
       </div>
     </div>
-    <div class="timer-track"><div id="timer-bar"></div></div>
+    <div class="ttrack"><div id="tbar"></div></div>
     <div class="viz" id="viz"></div>
-    <div id="time-num">15</div>
-    <div class="pause-row">
+    <div id="tnum">15</div>
+    <div class="prow">
       <button id="btn-pause" onclick="togglePause()">⏸ ポーズ</button>
     </div>
-    <div class="ans-reveal" id="ans-reveal" style="display:none;">
-      <div class="ans-emoji" id="ans-emoji"></div>
-      <div class="ans-label">正解</div>
-      <div class="ans-name" id="ans-name"></div>
-      <div class="ans-artist" id="ans-artist"></div>
+    <div class="arev" id="arev" style="display:none;">
+      <div class="ae" id="ae"></div>
+      <div class="al">正解</div>
+      <div class="an" id="an"></div>
+      <div class="aa" id="aa"></div>
     </div>
     <div class="choices" id="choices"></div>
   </div>
 </div>
 
-<!-- ══ 結果画面 ══ -->
+<!-- ── 結果 ── -->
 
-<div id="page-result" class="overlay">
+<div id="page-result" class="page">
   <div class="card">
-    <div class="res-label">RESULT</div>
-    <div class="res-score" id="res-score">0<span>/10</span></div>
-    <div class="res-rank" id="res-rank"></div>
-    <div class="res-detail" id="res-detail"></div>
-    <div id="no-audio-box">
-      <div class="nab-title">⚠ 音源が見つからなかった曲（除外済み）</div>
-      <div id="no-audio-list"></div>
+    <div class="rl">RESULT</div>
+    <div class="rs" id="rs">0<span>/10</span></div>
+    <div class="rr" id="rr"></div>
+    <div class="rd" id="rd"></div>
+    <div id="fetch-report">
+      <div class="rt">FETCH REPORT</div>
+      <div id="report-body"></div>
     </div>
-    <div class="res-btns">
+    <div class="rbtns">
       <button class="btn-retry" onclick="onStart()">もう一度</button>
-      <button class="btn-back" onclick="goTitle()">選択に戻る</button>
+      <button class="btn-back"  onclick="goTitle()">選択に戻る</button>
     </div>
   </div>
 </div>
 
-<!-- ══ コンボ演出 ══ -->
+<!-- ── コンボ ── -->
 
 <div id="combo-ov">
-  <div class="combo-badge">
-    <div class="combo-t">COMBO</div>
-    <div class="combo-n" id="combo-n">2x</div>
-  </div>
+  <div class="cbadge"><div class="ct">COMBO</div><div class="cn" id="cn">2x</div></div>
 </div>
 
 <script>
-// ════════════════════════════════════
+// ════════════════════════════
 //  楽曲データ
-// ════════════════════════════════════
+// ════════════════════════════
 const LIBRARY = {
   mrchildren: { name:"Mr.Children",        icon:"🎸", sub:"TOP30", search:"Mr.Children",
     songs:["365日","GIFT","終わりなき旅","HANABI","名もなき詩","しるし","抱きしめたい","Tomorrow never knows","Over","Sign","君がいた夏","花の匂い","旅立ちの唄","ひまわり","innocent world","彩り","口笛","くるみ","Your Song","Birthday","足音 〜Be Strong","HERO","シーソーゲーム 〜勇敢な恋の歌〜","youthful days","ALIVE","CROSS ROAD","エソラ","NOT FOUND","fanfare","光の射す方へ"] },
@@ -419,77 +346,53 @@ const LIBRARY = {
     songs:["踊り子","怪獣の花唄","napori","東京フラッシュ","しわあわせ","まぶた","タイムパラドックス","灯火","恋風邪にのせて","チラリズム"] },
 };
 
-// ════════════════════════════════════
+// ════════════════════════════
 //  定数・状態
-// ════════════════════════════════════
+// ════════════════════════════
 const PLAY_SEC = 15, TOTAL_Q = 10, OPTS = ["A","B","C","D"];
 const SILENT = "data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEARKwAAIhYAQACABAAZGF0YQAAAAA=";
-const LS_KEY = "iq_excluded_v1";
+const LS_LOG_KEY = "iq_fetchlog_v1";
 
-let selectedArtists = [];
-let isRandom = false;
+let selArtists = [], isRandom = false;
 let pool = [], usedIdx = [], cur = null, choices = [];
 let timerInt = null, elapsed = 0, answered = false, paused = false, audioOk = false;
-let noAudioThisSession = [];
+let score = 0, miss = 0, combo = 0, round = 0;
+let gameSession = 0;
+let fetchDelay = 1000; // デフォルト1秒
+
+// 取得率ログ（このセッション）
+let fetchLog = { ok:0, ng:0, total:0, details:[] };
 
 const audioEl = document.getElementById('audio');
 
-// ════════════════════════════════════
-//  localStorage
-// ════════════════════════════════════
-function loadExcluded(){ try{ return JSON.parse(localStorage.getItem(LS_KEY)||'[]'); }catch{ return []; } }
-function saveExcluded(list){ try{ localStorage.setItem(LS_KEY,JSON.stringify(list)); }catch{} }
-function resetExcluded(){
-  if(!confirm('音源なし除外リストをリセットしますか？')) return;
-  localStorage.removeItem(LS_KEY);
-  updateExcludeBanner();
-}
-function updateExcludeBanner(){
-  const n = loadExcluded().length;
-  const el = document.getElementById('exclude-banner');
-  let diagInfo = '';
-  try{
-    const d = JSON.parse(localStorage.getItem(LS_DIAG_KEY)||'null');
-    if(d) diagInfo = ` ／ 診断済み ${d.date}（✓${d.okCount}曲）`;
-  }catch{}
-  if(n > 0){
-    el.style.display='block';
-    el.textContent=`⚠ 除外中: ${n}曲（音源なし）${diagInfo}`;
-  } else if(diagInfo){
-    el.style.display='block';
-    el.textContent=`✓ 診断済み${diagInfo}`;
-  } else {
-    el.style.display='none';
-  }
-}
-
-// ════════════════════════════════════
-//  iOS Audio解放
-// ════════════════════════════════════
+// ── iOS Audio解放 ──
 function unlockAudio(){
   if(audioOk) return;
-  audioEl.src=SILENT;
+  audioEl.src = SILENT;
   audioEl.play().then(()=>{ audioEl.pause(); audioEl.src=""; audioOk=true; }).catch(()=>{});
 }
 
-// ════════════════════════════════════
-//  アーティストグリッド生成
-// ════════════════════════════════════
-(function buildGrid(){
-  const grid = document.getElementById('artist-grid');
-  Object.entries(LIBRARY).forEach(([key, a]) => {
+// ── 間隔設定 ──
+function setInterval_(sec){
+  fetchDelay = sec * 1000;
+  document.querySelectorAll('.ibtn').forEach(b=>{
+    b.classList.toggle('on', parseInt(b.dataset.sec) === sec);
+  });
+}
+
+// ── アーティストグリッド生成 ──
+(function(){
+  const grid = document.getElementById('grid');
+  Object.entries(LIBRARY).forEach(([key, a])=>{
     const btn = document.createElement('button');
-    btn.className = 'abtn';
-    btn.dataset.key = key;
-    btn.innerHTML = `<span class="icon">${a.icon}</span>${a.name}<span class="sub">${a.sub}</span>`;
-    btn.addEventListener('click', () => {
+    btn.className = 'abtn'; btn.dataset.key = key;
+    btn.innerHTML = `<span class="ic">${a.icon}</span>${a.name}<span class="sb">${a.sub}</span>`;
+    btn.addEventListener('click', ()=>{
       if(isRandom){ isRandom=false; document.getElementById('btn-random').classList.remove('on'); }
-      if(selectedArtists.includes(key)){
-        selectedArtists = selectedArtists.filter(k=>k!==key);
-        btn.classList.remove('on');
+      if(selArtists.includes(key)){
+        selArtists = selArtists.filter(k=>k!==key); btn.classList.remove('on');
       } else {
-        selectedArtists.push(key);
-        btn.classList.add('on');
+        selArtists.push(key); btn.classList.add('on');
       }
       updateStartBtn();
     });
@@ -500,171 +403,125 @@ function unlockAudio(){
 function toggleRandom(){
   isRandom = !isRandom;
   document.getElementById('btn-random').classList.toggle('on', isRandom);
-  if(isRandom){
-    selectedArtists = [];
-    document.querySelectorAll('.abtn').forEach(b=>b.classList.remove('on'));
-  }
+  if(isRandom){ selArtists=[]; document.querySelectorAll('.abtn').forEach(b=>b.classList.remove('on')); }
   updateStartBtn();
 }
-
 function updateStartBtn(){
-  document.getElementById('btn-start').disabled = !(isRandom || selectedArtists.length > 0);
+  document.getElementById('btn-start').disabled = !(isRandom || selArtists.length > 0);
 }
 
-// ════════════════════════════════════
-//  画面切り替え（シンプル）
-// ════════════════════════════════════
+// ── 画面切替 ──
 function showPage(name){
-  document.getElementById('page-title').style.display   = (name==='title')   ? 'flex' : 'none';
-  document.getElementById('page-loading').style.display = (name==='loading') ? 'flex' : 'none';
-  document.getElementById('page-game').style.display    = (name==='game')    ? 'flex' : 'none';
-  document.getElementById('page-result').style.display  = (name==='result')  ? 'flex' : 'none';
+  ['title','loading','game','result'].forEach(n=>{
+    const el = document.getElementById('page-'+n);
+    if(n === 'title') el.style.display = (name==='title') ? 'flex' : 'none';
+    else el.classList.toggle('show', name===n);
+  });
 }
 
+// ── タイトルへ戻る ──
 function goTitle(){
-  gameSession++; // ← 最初にセッションを無効化（進行中のsetTimeoutを全部止める）
-  stopAudio();
-  answered = true; paused = false;
-  hideViz();
-  // アーティスト選択状態をリセット
-  selectedArtists = [];
-  isRandom = false;
+  gameSession++;
+  stopAudio(); answered=true; paused=false; hideViz();
+  selArtists=[]; isRandom=false;
   document.querySelectorAll('.abtn').forEach(b=>b.classList.remove('on'));
   document.getElementById('btn-random').classList.remove('on');
   updateStartBtn();
-  updateExcludeBanner();
+  updateStatPanel();
   showPage('title');
   window.scrollTo(0,0);
 }
 
-// ════════════════════════════════════
-//  ゲーム開始
-// ════════════════════════════════════
+// ── ゲーム開始 ──
 function onStart(){
-  gameSession++; // 新しいゲームセッション開始
+  gameSession++;
   unlockAudio();
-  score=0; miss=0; combo=0; round=0; usedIdx=[]; noAudioThisSession=[];
-  const excluded = loadExcluded();
-  const keys = isRandom ? Object.keys(LIBRARY) : selectedArtists;
+  score=0; miss=0; combo=0; round=0; usedIdx=[];
+  fetchLog = { ok:0, ng:0, total:0, details:[] };
+  const keys = isRandom ? Object.keys(LIBRARY) : selArtists;
   pool = [];
   keys.forEach(key=>{
     LIBRARY[key].songs.forEach(song=>{
-      const id = key+'__'+song;
-      if(!excluded.includes(id)){
-        pool.push({ song, artistName:LIBRARY[key].name, search:LIBRARY[key].search, id, url:null });
-      }
+      pool.push({ song, artistName:LIBRARY[key].name, search:LIBRARY[key].search });
     });
   });
   pool = shuffle(pool);
   updateScoreUI();
-  preloadAndStart();
-}
-
-document.getElementById('btn-start').addEventListener('click', onStart);
-
-// ════════════════════════════════════
-//  プリロード
-// ════════════════════════════════════
-async function preloadAndStart(){
-  showPage('loading');
-  document.getElementById('ld-text').textContent = '音源を確認中...';
-  document.getElementById('ld-sub').textContent  = '';
-  document.getElementById('preload-bar').style.width = '0%';
-  document.getElementById('preload-count').textContent = '';
-
-  const targets = pool.slice(0, Math.min(40, pool.length));
-  let done = 0;
-  const excluded = loadExcluded();
-
-  const BATCH = 5;
-  for(let i=0; i<targets.length; i+=BATCH){
-    // タイトルに戻っていたら中断
-    if(document.getElementById('page-loading').style.display==='none') return;
-    const batch = targets.slice(i, i+BATCH);
-    await Promise.all(batch.map(async item=>{
-      let url = await fetchPreview(item.search, item.song);
-      if(!url) url = await fetchPreview(item.artistName, item.song);
-      item.url = url;
-      if(!url){
-        noAudioThisSession.push(`${item.artistName} — ${item.song}`);
-        if(!excluded.includes(item.id)){
-          excluded.push(item.id);
-          saveExcluded(excluded);
-        }
-      }
-      done++;
-      const pct = Math.round(done/targets.length*100);
-      document.getElementById('preload-bar').style.width = pct+'%';
-      document.getElementById('preload-count').textContent = `${done} / ${targets.length} 曲確認済み`;
-    }));
-    if(pool.filter(p=>p.url).length >= TOTAL_Q) break;
-  }
-
-  pool = pool.filter(p=>p.url);
-
-  if(pool.length < 3){
-    document.getElementById('ld-text').textContent = '音源が見つかりませんでした';
-    document.getElementById('preload-count').textContent = '別のアーティストを選んでください';
-    setTimeout(goTitle, 3000);
-    return;
-  }
-
   nextRound();
 }
+document.getElementById('btn-start').addEventListener('click', onStart);
 
-// ════════════════════════════════════
-//  ラウンド
-// ════════════════════════════════════
-let score=0, miss=0, combo=0, round=0;
-let gameSession = 0; // セッションID（タイトルに戻るたびに増加）
-
+// ── 次の問題 ──
 async function nextRound(){
+  const mySession = gameSession;
   stopAudio(); answered=false; paused=false;
   updatePauseBtn(); hideViz();
 
-  // ── DOM完全リセット ──
-  const ansEl = document.getElementById('ans-reveal');
-  ansEl.style.display = 'none';
-  ansEl.style.animation = 'none'; // アニメーション残留を防ぐ
-  void ansEl.offsetWidth;         // リフロー
-  ansEl.style.animation = '';
-
-  const timeEl = document.getElementById('time-num');
-  timeEl.style.display = 'block';
-  timeEl.style.color = 'var(--red)';
-  timeEl.textContent = PLAY_SEC;
-
+  // DOM リセット
+  const ar = document.getElementById('arev');
+  ar.style.display = 'none';
+  document.getElementById('tnum').style.display = 'block';
   document.getElementById('btn-pause').style.display = '';
-  document.getElementById('choices').innerHTML = ''; // 選択肢も先にクリア
+  document.getElementById('choices').innerHTML = '';
 
   const avail = pool.filter((_,i)=>!usedIdx.includes(i));
-  if(!avail.length || round>=TOTAL_Q){ showResult(); return; }
+  if(!avail.length || round >= TOTAL_Q){ showResult(); return; }
 
   const item = shuffle(avail)[0];
-  usedIdx.push(pool.indexOf(item));
-  cur = item;
+  usedIdx.push(pool.indexOf(item)); cur = item;
 
   const others = [...new Set(shuffle(pool.filter(p=>p.song!==item.song).map(p=>p.song)))].slice(0,3);
   choices = shuffle([item.song, ...others]);
 
   document.getElementById('g-round').textContent = `${round+1} / ${TOTAL_Q}問`;
+  document.getElementById('ld-sub').textContent = `${item.artistName} — ${item.song}`;
+  showPage('loading');
+
+  // ── 間隔を置いてからフェッチ ──
+  await sleep(fetchDelay);
+  if(gameSession !== mySession) return;
+
+  const t0 = Date.now();
+  let url = await fetchPreview(item.search, item.song);
+  if(!url) url = await fetchPreview(item.artistName, item.song);
+  const ms = Date.now() - t0;
+
+  // ログ記録
+  fetchLog.total++;
+  if(url){ fetchLog.ok++; }
+  else    { fetchLog.ng++; }
+  fetchLog.details.push({
+    song: item.song,
+    artist: item.artistName,
+    ok: !!url,
+    delay: fetchDelay/1000,
+    ms
+  });
+  saveFetchLog();
+
+  if(gameSession !== mySession) return;
+
   buildChoices(); resetBar();
-  document.getElementById('time-num').textContent = PLAY_SEC;
-  document.getElementById('time-num').style.color = 'var(--red)';
+  document.getElementById('tnum').textContent = PLAY_SEC;
+  document.getElementById('tnum').style.color = 'var(--red)';
   showPage('game');
 
-  audioEl.src = item.url; audioEl.currentTime = 0;
+  if(!url){
+    // 音源なし → 自動スキップ（カウントせず）
+    answered = true;
+    setTimeout(()=>{ if(gameSession===mySession){ round++; nextRound(); } }, 1500);
+    return;
+  }
+
+  audioEl.src = item.url || url;
+  audioEl.src = url;
+  audioEl.currentTime = 0;
   audioEl.play().then(()=>{ buildViz(); startTimer(); }).catch(()=>startTimer());
 }
 
-function stopAudio(){
-  audioEl.pause(); audioEl.removeAttribute('src');
-  clearInterval(timerInt); timerInt=null;
-}
+const sleep = ms => new Promise(r=>setTimeout(r,ms));
 
-// ════════════════════════════════════
-//  iTunes API
-// ════════════════════════════════════
+// ── iTunes API ──
 async function fetchPreview(artist, song){
   try{
     const q = encodeURIComponent(artist+' '+song);
@@ -675,38 +532,73 @@ async function fetchPreview(artist, song){
   }catch{ return null; }
 }
 
-// ════════════════════════════════════
-//  タイマー
-// ════════════════════════════════════
+// ── ログ保存・表示 ──
+function saveFetchLog(){
+  try{
+    const stored = JSON.parse(localStorage.getItem(LS_LOG_KEY)||'[]');
+    fetchLog.details.forEach(d=>{
+      stored.push({ ...d, date: new Date().toLocaleDateString('ja-JP') });
+    });
+    // 直近200件だけ保持
+    localStorage.setItem(LS_LOG_KEY, JSON.stringify(stored.slice(-200)));
+  }catch{}
+}
+
+function updateStatPanel(){
+  try{
+    const stored = JSON.parse(localStorage.getItem(LS_LOG_KEY)||'[]');
+    if(!stored.length){ document.getElementById('stat-body').textContent='まだデータがありません'; return; }
+
+    // 間隔別に集計
+    const byDelay = {};
+    stored.forEach(d=>{
+      const k = d.delay+'秒';
+      if(!byDelay[k]) byDelay[k] = { ok:0, ng:0 };
+      d.ok ? byDelay[k].ok++ : byDelay[k].ng++;
+    });
+
+    let html = '';
+    Object.entries(byDelay).sort().forEach(([k,v])=>{
+      const tot = v.ok+v.ng;
+      const pct = Math.round(v.ok/tot*100);
+      html += `間隔<b>${k}</b>: ${v.ok}/${tot}曲成功 <b style="color:${pct>=70?'#39ff8a':'#ff6666'}">${pct}%</b><br>`;
+    });
+    html += `<span style="color:rgba(255,255,255,0.3);font-size:10px">累計${stored.length}件記録</span>`;
+    document.getElementById('stat-body').innerHTML = html;
+  }catch{}
+}
+
+// ── タイマー ──
 function startTimer(){
-  elapsed = 0;
+  elapsed=0;
   timerInt = setInterval(()=>{
     if(paused) return;
-    elapsed += 0.1;
-    const left = Math.max(0, PLAY_SEC-elapsed);
-    const pct  = left/PLAY_SEC;
-    const c    = pct>0.5 ? 'var(--red)' : pct>0.25 ? '#ff8800' : '#ffcc00';
-    const el   = document.getElementById('time-num');
+    elapsed+=0.1;
+    const left=Math.max(0,PLAY_SEC-elapsed);
+    const pct=left/PLAY_SEC;
+    const c=pct>0.5?'var(--red)':pct>0.25?'#ff8800':'#ffcc00';
+    const el=document.getElementById('tnum');
     el.textContent=Math.ceil(left); el.style.color=c; el.style.textShadow=`0 0 18px ${c}`;
     updateBar(pct);
     if(left<=0){ clearInterval(timerInt); audioEl.pause(); timeUp(); }
-  }, 100);
+  },100);
 }
-function resetBar(){ const b=document.getElementById('timer-bar'); b.style.transition='none'; b.style.width='100%'; }
+function stopAudio(){ audioEl.pause(); audioEl.removeAttribute('src'); clearInterval(timerInt); timerInt=null; }
+function resetBar(){ const b=document.getElementById('tbar'); b.style.transition='none'; b.style.width='100%'; }
 function updateBar(pct){
-  const b=document.getElementById('timer-bar');
+  const b=document.getElementById('tbar');
   b.style.transition='width 0.15s linear,background 0.5s';
   b.style.width=(pct*100)+'%';
   b.style.background=pct>0.5?'var(--red)':pct>0.25?'#ff8800':'#ffcc00';
 }
 function timeUp(){
   if(answered)return;
-  answered=true; miss++; combo=0; stopAudio(); hideViz(); updateScoreUI(); revealAnswer(false); scheduleNext();
+  answered=true; miss++; combo=0; stopAudio(); hideViz(); updateScoreUI();
+  revealAnswer(false);
+  scheduleNext();
 }
 
-// ════════════════════════════════════
-//  ポーズ
-// ════════════════════════════════════
+// ── ポーズ ──
 function togglePause(){
   if(answered)return;
   paused=!paused;
@@ -719,9 +611,7 @@ function updatePauseBtn(){
   b.classList.toggle('paused',paused);
 }
 
-// ════════════════════════════════════
-//  選択肢
-// ════════════════════════════════════
+// ── 選択肢 ──
 function buildChoices(){
   const c=document.getElementById('choices'); c.innerHTML='';
   choices.forEach((song,i)=>{
@@ -733,8 +623,7 @@ function buildChoices(){
 }
 function handleAnswer(song,btn){
   if(answered||paused)return;
-  // ── iOSの連続タップ防止：即座に全ボタン無効化 ──
-  document.querySelectorAll('.cbtn').forEach(b=>b.disabled=true);
+  document.querySelectorAll('.cbtn').forEach(b=>b.disabled=true); // 即無効化
   answered=true; stopAudio(); hideViz();
   const ok=song===cur.song;
   document.querySelectorAll('.cbtn').forEach((b,i)=>{
@@ -746,152 +635,67 @@ function handleAnswer(song,btn){
   updateScoreUI(); revealAnswer(ok); scheduleNext();
 }
 function revealAnswer(ok){
-  document.getElementById('ans-emoji').textContent = ok ? '🎉' : '😭';
-  document.getElementById('ans-name').textContent  = cur.song;
-  document.getElementById('ans-name').style.color  = ok ? 'var(--green)' : '#ff6666';
-  document.getElementById('ans-artist').textContent = cur.artistName;
-
-  const el = document.getElementById('ans-reveal');
-  el.style.animation = 'none';
-  void el.offsetWidth;
-  el.style.animation = '';
-  el.style.display = 'block';
-
-  document.getElementById('time-num').style.display  = 'none';
-  document.getElementById('btn-pause').style.display = 'none';
+  document.getElementById('ae').textContent=ok?'🎉':'😭';
+  document.getElementById('an').textContent=cur.song;
+  document.getElementById('an').style.color=ok?'var(--green)':'#ff6666';
+  document.getElementById('aa').textContent=cur.artistName;
+  const el=document.getElementById('arev');
+  el.style.display='block';
+  document.getElementById('tnum').style.display='none';
+  document.getElementById('btn-pause').style.display='none';
 }
 function scheduleNext(){
   round++;
-  const mySession = gameSession; // 現在のセッションを記憶
-  setTimeout(()=>{
-    if(gameSession !== mySession) return; // タイトルに戻っていたら無視
-    nextRound();
-  }, 2200);
+  const s=gameSession;
+  setTimeout(()=>{ if(gameSession===s) nextRound(); },2200);
 }
 function updateScoreUI(){ document.getElementById('g-ok').textContent=score; document.getElementById('g-ng').textContent=miss; }
 function showCombo(n){
-  document.getElementById('combo-n').textContent=n+'x';
+  document.getElementById('cn').textContent=n+'x';
   const el=document.getElementById('combo-ov');
   el.classList.add('show'); setTimeout(()=>el.classList.remove('show'),1700);
 }
 
-// ════════════════════════════════════
-//  ビジュアライザー
-// ════════════════════════════════════
+// ── ビジュアライザー ──
 function buildViz(){
   const v=document.getElementById('viz'); v.innerHTML='';
   [16,28,42,34,50,38,24,46,32,20].forEach((h,i)=>{
-    const b=document.createElement('div'); b.className='vbar';
+    const b=document.createElement('div'); b.className='vb';
     b.style.cssText=`height:${h}px;animation-duration:${0.4+i*0.07}s;animation-delay:${i*0.05}s;`;
     v.appendChild(b);
   });
 }
 function hideViz(){ document.getElementById('viz').innerHTML=''; }
 
-// ════════════════════════════════════
-//  結果
-// ════════════════════════════════════
+// ── 結果 ──
 function showResult(){
   const pct=(score/TOTAL_Q)*100;
   const rank=pct>=90?'🏆 完璧！':pct>=70?'🎸 すごい！':pct>=50?'🎵 なかなか！':pct>=30?'😅 もう少し！':'🔰 要特訓！';
-  document.getElementById('res-score').innerHTML=`${score}<span>/${TOTAL_Q}</span>`;
-  document.getElementById('res-rank').textContent=rank;
-  document.getElementById('res-detail').textContent=`正解 ${score}問 ／ ミス ${miss}問`;
-  const box=document.getElementById('no-audio-box');
-  const lst=document.getElementById('no-audio-list');
-  if(noAudioThisSession.length>0){
-    lst.innerHTML=noAudioThisSession.map(s=>`• ${s}`).join('<br>');
-    box.style.display='block';
-  } else { box.style.display='none'; }
-  updateExcludeBanner();
+  document.getElementById('rs').innerHTML=`${score}<span>/${TOTAL_Q}</span>`;
+  document.getElementById('rr').textContent=rank;
+  document.getElementById('rd').textContent=`正解 ${score}問 ／ ミス ${miss}問`;
+
+  // フェッチレポート
+  const okPct = fetchLog.total ? Math.round(fetchLog.ok/fetchLog.total*100) : 0;
+  let rep = `間隔: <b>${fetchDelay/1000}秒</b><br>`;
+  rep += `取得成功: <b style="color:#39ff8a">${fetchLog.ok}曲</b> ／ 失敗: <b style="color:#ff6666">${fetchLog.ng}曲</b><br>`;
+  rep += `取得率: <b style="color:${okPct>=70?'#39ff8a':'#ff6666'}">${okPct}%</b><br>`;
+  if(fetchLog.ng > 0){
+    rep += `<br>失敗した曲:<br>`;
+    fetchLog.details.filter(d=>!d.ok).forEach(d=>{
+      rep += `• ${d.artist} — ${d.song}<br>`;
+    });
+  }
+  document.getElementById('report-body').innerHTML = rep;
+  updateStatPanel();
   showPage('result');
 }
 
-// ════════════════════════════════════
-//  診断モード
-// ════════════════════════════════════
-const LS_DIAG_KEY = 'iq_diag_v1'; // { checked: true, excluded: [...], okCount, ngCount, date }
-let diagRunning = false;
-let diagSession = 0;
-
-function startDiagnose(){
-  diagRunning = true;
-  diagSession++;
-  const mySession = diagSession;
-
-  document.getElementById('page-diagnose').classList.add('show');
-  document.getElementById('diag-bar').style.width = '0%';
-  document.getElementById('diag-log').innerHTML = '';
-  document.getElementById('diag-count').textContent = '';
-
-  const allItems = [];
-  Object.entries(LIBRARY).forEach(([key, a])=>{
-    a.songs.forEach(song=>{
-      allItems.push({ id: key+'__'+song, song, artistName: a.name, search: a.search });
-    });
-  });
-
-  const total = allItems.length;
-  let done = 0, okCount = 0, ngCount = 0;
-  const excluded = [];
-
-  document.getElementById('diag-sub').textContent = `全${total}曲を確認中...`;
-
-  const BATCH = 3;
-  (async ()=>{
-    for(let i=0; i<allItems.length; i+=BATCH){
-      if(diagSession !== mySession) return; // 中断された
-      const batch = allItems.slice(i, i+BATCH);
-      await Promise.all(batch.map(async item=>{
-        let url = await fetchPreview(item.search, item.song);
-        if(!url) url = await fetchPreview(item.artistName, item.song);
-        done++;
-        if(url){ okCount++; }
-        else { ngCount++; excluded.push(item.id); }
-
-        // ログ追加
-        const log = document.getElementById('diag-log');
-        const line = document.createElement('div');
-        line.className = url ? 'ok' : 'ng';
-        line.textContent = `${url?'✓':'✗'} ${item.artistName} — ${item.song}`;
-        log.appendChild(line);
-        log.scrollTop = log.scrollHeight;
-
-        const pct = Math.round(done/total*100);
-        document.getElementById('diag-bar').style.width = pct+'%';
-        document.getElementById('diag-count').textContent =
-          `${done} / ${total}曲  ✓${okCount}件  ✗${ngCount}件`;
-      }));
-    }
-
-    if(diagSession !== mySession) return;
-
-    // 保存
-    saveExcluded(excluded);
-    const result = { checked:true, okCount, ngCount, total, date: new Date().toLocaleDateString('ja-JP') };
-    try{ localStorage.setItem(LS_DIAG_KEY, JSON.stringify(result)); }catch{}
-
-    document.getElementById('diag-sub').textContent = `完了！ 音源あり:${okCount}曲 / なし:${ngCount}曲`;
-    document.getElementById('btn-diag-stop').textContent = '✓ 完了 — タイトルへ戻る';
-    diagRunning = false;
-    updateExcludeBanner();
-  })();
-}
-
-function stopDiagnose(){
-  diagSession++; // 実行中の診断を停止
-  diagRunning = false;
-  document.getElementById('page-diagnose').classList.remove('show');
-  updateExcludeBanner();
-}
+// ── 初期化 ──
 function shuffle(a){ return [...a].sort(()=>Math.random()-0.5); }
-// 起動時：選択状態クリア・スタート無効
-selectedArtists = [];
-isRandom = false;
 document.getElementById('btn-start').disabled = true;
-document.getElementById('btn-random').classList.remove('on');
 showPage('title');
-updateExcludeBanner();
+updateStatPanel();
 </script>
 
 </body>
