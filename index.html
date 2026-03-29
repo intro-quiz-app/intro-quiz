@@ -3,7 +3,7 @@
 <!--
   ╔══════════════════════════════════════════════════════╗
   ║  イントロクイズ  index.html                          ║
-  ║  VERSION : 1.5.3  (2026-03-29)                      ║
+  ║  VERSION : 1.5.3a (2026-03-29)                      ║
   ╠══════════════════════════════════════════════════════╣
   ║  v1.0.0  初版（ミスチル専用、iTunes Preview）        ║
   ║  v1.1.0  複数アーティスト対応（9組）                 ║
@@ -19,6 +19,7 @@
   ║  v1.5.1  ボタン二重登録バグ修正・audio要素復活       ║
   ║  v1.5.2  結果画面に10曲正誤リストを追加             ║
   ║  v1.5.3  取得中画面の曲名表示を削除（ネタバレ防止） ║
+  ║  v1.5.3a あいみょん「あいみょん」→「愛の花」修正   ║
   ╚══════════════════════════════════════════════════════╝
 -->
 
@@ -27,7 +28,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>イントロクイズ v1.5.3</title>
+<title>イントロクイズ v1.5.3a</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
@@ -220,7 +221,7 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
   <div class="card">
     <div class="ttl">INTRO QUIZ</div>
     <div class="ttl-big">イントロクイズ</div>
-    <div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.28);margin-bottom:6px;letter-spacing:1px;">v1.5.3 — 取得間隔テスト版</div>
+    <div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.28);margin-bottom:6px;letter-spacing:1px;">v1.5.3a — 取得間隔テスト版</div>
     <div class="ttl-sub">J-POP 早押し 4択</div>
 
 ```
@@ -340,7 +341,7 @@ const LIBRARY = {
   higedan:    { name:"Official髭男dism",   icon:"👔", sub:"TOP10", search:"Official髭男dism",
     songs:["Pretender","イエスタデイ","Subtitle","Universe","I LOVE...","Cry Baby","Traveler","115万キロのフィルム","CITRUS","ミックスナッツ"] },
   aimyon:     { name:"あいみょん",           icon:"🌼", sub:"TOP10", search:"あいみょん",
-    songs:["マリーゴールド","君はロックを聴かない","今夜このまま","ハルノヒ","裸の心","桜が降る夜は","愛を伝えたいだとか","生きていたんだよな","空の青さを知る人よ","あいみょん"] },
+    songs:["マリーゴールド","君はロックを聴かない","今夜このまま","ハルノヒ","裸の心","桜が降る夜は","愛を伝えたいだとか","生きていたんだよな","空の青さを知る人よ","愛の花"] },
   utada:      { name:"宇多田ヒカル",         icon:"🌟", sub:"TOP10", search:"宇多田ヒカル",
     songs:["First Love","Automatic","SAKURAドロップス","Can You Keep A Secret?","花束を君に","traveling","Flavor Of Life","Beautiful World","光","HEART STATION"] },
   shiina:     { name:"椎名林檎",            icon:"🎪", sub:"TOP10", search:"椎名林檎",
