@@ -3,7 +3,7 @@
 <!--
   ╔══════════════════════════════════════════════════════╗
   ║  イントロクイズ  index.html                          ║
-  ║  VERSION : 1.5.2  (2026-03-29)                      ║
+  ║  VERSION : 1.5.3  (2026-03-29)                      ║
   ╠══════════════════════════════════════════════════════╣
   ║  v1.0.0  初版（ミスチル専用、iTunes Preview）        ║
   ║  v1.1.0  複数アーティスト対応（9組）                 ║
@@ -18,6 +18,7 @@
   ║           ・取得結果をリアルタイム記録・表示          ║
   ║  v1.5.1  ボタン二重登録バグ修正・audio要素復活       ║
   ║  v1.5.2  結果画面に10曲正誤リストを追加             ║
+  ║  v1.5.3  取得中画面の曲名表示を削除（ネタバレ防止） ║
   ╚══════════════════════════════════════════════════════╝
 -->
 
@@ -26,7 +27,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>イントロクイズ v1.5.2</title>
+<title>イントロクイズ v1.5.3</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
@@ -219,7 +220,7 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
   <div class="card">
     <div class="ttl">INTRO QUIZ</div>
     <div class="ttl-big">イントロクイズ</div>
-    <div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.28);margin-bottom:6px;letter-spacing:1px;">v1.5.2 — 取得間隔テスト版</div>
+    <div style="text-align:center;font-size:10px;color:rgba(255,255,255,0.28);margin-bottom:6px;letter-spacing:1px;">v1.5.3 — 取得間隔テスト版</div>
     <div class="ttl-sub">J-POP 早押し 4択</div>
 
 ```
@@ -252,7 +253,6 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
   <div class="card" style="text-align:center;padding:40px 20px;">
     <div class="ld-icon">🎵</div>
     <div class="ld-txt">音源を取得中...</div>
-    <div class="ld-sub" id="ld-sub"></div>
   </div>
 </div>
 
