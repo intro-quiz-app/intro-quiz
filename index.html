@@ -3,7 +3,7 @@
 <!--
   ╔══════════════════════════════════════════════════════╗
   ║  イントロクイズ  index.html                          ║
-  ║  VERSION : 1.5.0  (2026-03-29)                      ║
+  ║  VERSION : 1.5.1  (2026-03-29)                      ║
   ╠══════════════════════════════════════════════════════╣
   ║  v1.0.0  初版（ミスチル専用、iTunes Preview）        ║
   ║  v1.1.0  複数アーティスト対応（9組）                 ║
@@ -16,6 +16,9 @@
   ║           ・フェッチ間隔テスト機能追加               ║
   ║             （1秒/2秒/3秒で取得率を比較）            ║
   ║           ・取得結果をリアルタイム記録・表示          ║
+  ║  v1.5.1  ボタン二重登録バグ修正                     ║
+  ║           ・onclick属性をHTML側から全て削除          ║
+  ║           ・イベント登録をJS側に統一                 ║
   ╚══════════════════════════════════════════════════════╝
 -->
 
@@ -24,7 +27,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>イントロクイズ v1.5.0</title>
+<title>イントロクイズ v1.5.1</title>
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
@@ -202,8 +205,8 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
 
 <div id="top-bar">
   <div id="top-inner">
-    <button id="btn-random" onclick="toggleRandom()">🎲 ランダム</button>
-    <button id="btn-start"  disabled onclick="onStart()">▶ スタート</button>
+    <button id="btn-random">🎲 ランダム</button>
+    <button id="btn-start" disabled>▶ スタート</button>
   </div>
 </div>
 
@@ -222,9 +225,9 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
 <!-- 間隔テスト設定 -->
 <div class="interval-row">
   <span class="interval-label">⏱ 取得間隔</span>
-  <button class="ibtn on" data-sec="1" onclick="setInterval_(1)">1秒</button>
-  <button class="ibtn"    data-sec="2" onclick="setInterval_(2)">2秒</button>
-  <button class="ibtn"    data-sec="3" onclick="setInterval_(3)">3秒</button>
+  <button class="ibtn on" data-sec="1">1秒</button>
+  <button class="ibtn"    data-sec="2">2秒</button>
+  <button class="ibtn"    data-sec="3">3秒</button>
 </div>
 
 <!-- 取得率パネル -->
@@ -264,7 +267,7 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
     <div class="viz" id="viz"></div>
     <div id="tnum">15</div>
     <div class="prow">
-      <button id="btn-pause" onclick="togglePause()">⏸ ポーズ</button>
+      <button id="btn-pause">⏸ ポーズ</button>
     </div>
     <div class="arev" id="arev" style="display:none;">
       <div class="ae" id="ae"></div>
@@ -289,8 +292,8 @@ font-size:11px; line-height:1.9; color:rgba(255,255,255,0.55);
       <div id="report-body"></div>
     </div>
     <div class="rbtns">
-      <button class="btn-retry" onclick="onStart()">もう一度</button>
-      <button class="btn-back"  onclick="goTitle()">選択に戻る</button>
+      <button class="btn-retry" id="btn-retry">もう一度</button>
+      <button class="btn-back"  id="btn-back">選択に戻る</button>
     </div>
   </div>
 </div>
@@ -450,6 +453,13 @@ function onStart(){
   nextRound();
 }
 document.getElementById('btn-start').addEventListener('click', onStart);
+document.getElementById('btn-random').addEventListener('click', toggleRandom);
+document.getElementById('btn-pause').addEventListener('click', togglePause);
+document.getElementById('btn-retry').addEventListener('click', onStart);
+document.getElementById('btn-back').addEventListener('click', goTitle);
+document.querySelectorAll('.ibtn').forEach(b=>{
+  b.addEventListener('click', ()=>setInterval_(parseInt(b.dataset.sec)));
+});
 
 // ── 次の問題 ──
 async function nextRound(){
