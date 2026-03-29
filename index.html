@@ -500,7 +500,6 @@ async function nextRound(){
   choices = shuffle([item.song, ...others]);
 
   document.getElementById('g-round').textContent = `${round+1} / ${TOTAL_Q}問`;
-  document.getElementById('ld-sub').textContent = `${item.artistName} — ${item.song}`;
   showPage('loading');
 
   // ── 間隔を置いてからフェッチ ──
